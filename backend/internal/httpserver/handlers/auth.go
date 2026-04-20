@@ -31,7 +31,7 @@ func (h *AuthHandler) Register(mux *http.ServeMux) {
 
 	mux.Handle("POST /v1/auth/register", limited(http.HandlerFunc(h.handleRegister)))
 	mux.Handle("POST /v1/auth/login", limited(http.HandlerFunc(h.handleLogin)))
-	mux.HandleFunc("POST /v1/auth/refresh", h.handleRefresh)
+	mux.Handle("POST /v1/auth/refresh", limited(http.HandlerFunc(h.handleRefresh)))
 }
 
 // registerRequest is the JSON body for POST /v1/auth/register.

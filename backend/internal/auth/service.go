@@ -22,17 +22,18 @@ const (
 	maxEmailLen    = 254
 )
 
-// userStoreIface is the data-access interface consumed by Service.
-// Declared consumer-side per idiomatic Go; *userStore satisfies it.
-type userStoreIface interface {
-	createUser(ctx context.Context, nu NewUser) (User, error)
-	getUserByEmail(ctx context.Context, email string) (User, error)
-	getUserByID(ctx context.Context, id uuid.UUID) (User, error)
+// Store is the data-access interface consumed by Service.
+// Declared consumer-side per idiomatic Go; *userStore satisfies it, as
+// does any fake provided by internal/testutil/authtest for testing.
+type Store interface {
+	CreateUser(ctx context.Context, nu NewUser) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 }
 
 // Service handles account registration, login, and token refresh.
 type Service struct {
-	store     userStoreIface
+	store     Store
 	jwtSecret []byte
 }
 
@@ -42,6 +43,12 @@ func NewService(pool *pgxpool.Pool, jwtSecret []byte) *Service {
 		store:     newUserStore(pool),
 		jwtSecret: jwtSecret,
 	}
+}
+
+// NewServiceWithStore constructs a Service backed by the provided store.
+// Intended for tests that supply an in-memory store without a real database.
+func NewServiceWithStore(store Store, jwtSecret []byte) *Service {
+	return &Service{store: store, jwtSecret: jwtSecret}
 }
 
 // RegisterInput is the payload for account creation.
@@ -68,7 +75,7 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (TokenPair, er
 		return TokenPair{}, fmt.Errorf("register: %w", err)
 	}
 
-	user, err := s.store.createUser(ctx, NewUser{
+	user, err := s.store.CreateUser(ctx, NewUser{
 		Email:        strings.ToLower(strings.TrimSpace(in.Email)),
 		Username:     strings.TrimSpace(in.Username),
 		PasswordHash: hash,
@@ -88,7 +95,7 @@ type LoginInput struct {
 
 // Login verifies credentials and returns a fresh token pair.
 func (s *Service) Login(ctx context.Context, in LoginInput) (TokenPair, error) {
-	user, err := s.store.getUserByEmail(ctx, strings.ToLower(strings.TrimSpace(in.Email)))
+	user, err := s.store.GetUserByEmail(ctx, strings.ToLower(strings.TrimSpace(in.Email)))
 	if err != nil {
 		// Map ErrNotFound → ErrInvalidCredentials to avoid user-enumeration.
 		if err == ErrNotFound {
@@ -111,8 +118,14 @@ func (s *Service) Refresh(ctx context.Context, refreshToken string) (TokenPair, 
 		return TokenPair{}, err // ErrInvalidToken or ErrExpiredToken
 	}
 
+	// Validate that the subject is a well-formed UUID before use.
+	id, err := uuid.Parse(claims.Sub)
+	if err != nil {
+		return TokenPair{}, ErrInvalidToken
+	}
+
 	// Verify the user still exists.
-	if _, err := s.store.getUserByID(ctx, uuid.UUID(claims.Sub)); err != nil {
+	if _, err := s.store.GetUserByID(ctx, id); err != nil {
 		return TokenPair{}, fmt.Errorf("refresh: %w", err)
 	}
 
