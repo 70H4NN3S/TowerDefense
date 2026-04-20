@@ -13,6 +13,17 @@ Format: `## <slug>` then bullet points with author, date, and context.
   required. SQL queries use `id::text` and `$1::uuid` casts for pgx compatibility.
   Reconsider if a richer UUID API (e.g. version 5 deterministic UUIDs) is ever needed.
 
+## refresh-token-rotation
+
+- **Author:** claude, 2026-04-20
+- **Context:** `auth.Service.Refresh` issues a new token pair but does NOT invalidate
+  the old refresh token's JTI. A stolen refresh token can therefore be replayed
+  indefinitely until expiry (30 days). Fix requires a `refresh_tokens` table (or
+  a `jti_revocations` deny-list), marking the consumed JTI as used in the same
+  transaction that issues the new pair. Already covered by the `jti` field in the
+  Claims struct; only the store logic and migration are missing.
+  Priority: high — ship before any public release.
+
 ## migration-multi-statement
 
 - **Author:** claude, 2026-04-20
