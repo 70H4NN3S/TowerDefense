@@ -8,10 +8,10 @@ Format: `## <slug>` then bullet points with author, date, and context.
 ## uuid-library
 
 - **Author:** claude, 2026-04-20
-- **Context:** Phase 1 uses `crypto/rand` hex strings for request IDs to avoid
-  adding a dependency. Phase 2 (user registration) will need proper UUID v4
-  generation (primary keys). `github.com/google/uuid` is the canonical choice;
-  it is not on the current allowed-dependency list. Discuss before Phase 2 begins.
+- **Context:** Resolved in Phase 2. Implemented `internal/uuid/` (~50 lines) using
+  `crypto/rand` + `encoding/hex` with `type UUID string`. No external dependency
+  required. SQL queries use `id::text` and `$1::uuid` casts for pgx compatibility.
+  Reconsider if a richer UUID API (e.g. version 5 deterministic UUIDs) is ever needed.
 
 ## migration-multi-statement
 
