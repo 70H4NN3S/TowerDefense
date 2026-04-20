@@ -247,6 +247,56 @@ func TestRefresh_InvalidToken_Returns401(t *testing.T) {
 	}
 }
 
+// --- malformed body ---
+
+func TestRegister_MalformedJSON_Returns400(t *testing.T) {
+	t.Parallel()
+
+	ts := newAuthTestServer(t)
+	resp, err := http.Post(ts.URL+"/v1/auth/register", "application/json",
+		strings.NewReader("{not valid json"))
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400", resp.StatusCode)
+	}
+}
+
+func TestLogin_MalformedJSON_Returns400(t *testing.T) {
+	t.Parallel()
+
+	ts := newAuthTestServer(t)
+	resp, err := http.Post(ts.URL+"/v1/auth/login", "application/json",
+		strings.NewReader("{not valid json"))
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400", resp.StatusCode)
+	}
+}
+
+func TestRefresh_MalformedJSON_Returns400(t *testing.T) {
+	t.Parallel()
+
+	ts := newAuthTestServer(t)
+	resp, err := http.Post(ts.URL+"/v1/auth/refresh", "application/json",
+		strings.NewReader("{not valid json"))
+	if err != nil {
+		t.Fatalf("POST: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400", resp.StatusCode)
+	}
+}
+
 // --- rate limit ---
 
 // newTightLimiterServer returns a test server whose auth limiter allows only

@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id          uuid        NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    id          uuid        NOT NULL PRIMARY KEY,
     email       citext      NOT NULL,
     username    citext      NOT NULL,
     password_hash text      NOT NULL,

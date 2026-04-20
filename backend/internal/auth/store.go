@@ -48,16 +48,18 @@ func newUserStore(pool *pgxpool.Pool) *userStore {
 }
 
 // CreateUser inserts a new row into users and returns the created User.
+// The UUID is generated application-side so we do not rely on gen_random_uuid().
 // Maps unique-constraint violations to ErrEmailTaken or ErrUsernameTaken.
 func (s *userStore) CreateUser(ctx context.Context, nu NewUser) (User, error) {
+	id := uuid.New()
 	const q = `
-		INSERT INTO users (email, username, password_hash)
-		VALUES ($1, $2, $3)
+		INSERT INTO users (id, email, username, password_hash)
+		VALUES ($1::uuid, $2, $3, $4)
 		RETURNING id::text, email, username, password_hash, trophies, created_at, updated_at`
 
 	var u User
 	var idStr string
-	err := s.pool.QueryRow(ctx, q, nu.Email, nu.Username, nu.PasswordHash).Scan(
+	err := s.pool.QueryRow(ctx, q, id.String(), nu.Email, nu.Username, nu.PasswordHash).Scan(
 		&idStr, &u.Email, &u.Username, &u.PasswordHash, &u.Trophies, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err != nil {
@@ -70,11 +72,11 @@ func (s *userStore) CreateUser(ctx context.Context, nu NewUser) (User, error) {
 		return User{}, fmt.Errorf("create user: %w", err)
 	}
 
-	id, err := uuid.Parse(idStr)
+	parsed, err := uuid.Parse(idStr)
 	if err != nil {
 		return User{}, fmt.Errorf("parse returned user id %q: %w", idStr, err)
 	}
-	u.ID = id
+	u.ID = parsed
 	return u, nil
 }
 

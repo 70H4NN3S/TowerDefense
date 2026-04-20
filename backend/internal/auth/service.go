@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -98,7 +99,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (TokenPair, error) {
 	user, err := s.store.GetUserByEmail(ctx, strings.ToLower(strings.TrimSpace(in.Email)))
 	if err != nil {
 		// Map ErrNotFound → ErrInvalidCredentials to avoid user-enumeration.
-		if err == ErrNotFound {
+		if errors.Is(err, ErrNotFound) {
 			return TokenPair{}, ErrInvalidCredentials
 		}
 		return TokenPair{}, fmt.Errorf("login: %w", err)

@@ -41,12 +41,13 @@ func Authenticate(jwtSecret []byte) Middleware {
 	}
 }
 
-// UserIDFromContext retrieves the authenticated user ID from the request
-// context. Returns the zero UUID if the context carries no user ID (i.e.
-// the request did not pass through Authenticate middleware).
-func UserIDFromContext(r *http.Request) uuid.UUID {
-	id, _ := r.Context().Value(userIDKey{}).(uuid.UUID)
-	return id
+// UserIDFromContext retrieves the authenticated user ID from the context.
+// Returns (id, true) when the Authenticate middleware has set the value,
+// and (zero, false) when it has not (unauthenticated route or missing middleware).
+// Always check the bool to avoid silently acting on a zero UUID.
+func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	id, ok := ctx.Value(userIDKey{}).(uuid.UUID)
+	return id, ok
 }
 
 // bearerToken extracts the token from an "Authorization: Bearer <token>" header.

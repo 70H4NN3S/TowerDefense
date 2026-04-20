@@ -8,9 +8,9 @@ import (
 	"net/http"
 )
 
-type contextKey string
+type reqIDKeyType struct{}
 
-const reqIDKey contextKey = "request_id"
+var reqIDKey reqIDKeyType
 
 // RequestID reads the incoming X-Request-ID header (or generates a new 16-byte
 // hex ID if absent), stores it on the context, and echoes it in the response.

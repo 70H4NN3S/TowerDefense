@@ -26,7 +26,7 @@ func validToken(t *testing.T) string {
 
 func authHandler(secret []byte) http.Handler {
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id := middleware.UserIDFromContext(r)
+		id, _ := middleware.UserIDFromContext(r.Context())
 		w.Header().Set("X-User-ID", id.String())
 		w.WriteHeader(http.StatusOK)
 	})
@@ -114,12 +114,15 @@ func TestAuthenticate_BearerPrefixRequired(t *testing.T) {
 	}
 }
 
-func TestUserIDFromContext_ReturnsZeroWhenAbsent(t *testing.T) {
+func TestUserIDFromContext_ReturnsZeroAndFalseWhenAbsent(t *testing.T) {
 	t.Parallel()
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	id := middleware.UserIDFromContext(r)
+	id, ok := middleware.UserIDFromContext(r.Context())
+	if ok {
+		t.Error("UserIDFromContext on empty context: ok = true, want false")
+	}
 	if id != (uuid.UUID)("") {
-		t.Errorf("UserIDFromContext on empty context = %q, want zero value", id)
+		t.Errorf("UserIDFromContext on empty context: id = %q, want zero value", id)
 	}
 }
