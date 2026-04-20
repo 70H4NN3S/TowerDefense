@@ -2,11 +2,21 @@ package httpserver
 
 import (
 	"net/http"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/johannesniedens/towerdefense/internal/auth"
+	"github.com/johannesniedens/towerdefense/internal/httpserver/handlers"
+	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
 )
 
 // registerRoutes wires all application routes onto mux.
 // Handlers are thin: they decode, validate, call a service, and respond.
-// Route handlers for each resource will be registered here as phases progress.
-func registerRoutes(mux *http.ServeMux) {
+func registerRoutes(mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
 	mux.HandleFunc("GET /healthz", handleHealthz)
+
+	authSvc := auth.NewService(pool, jwtSecret)
+	authLimiter := middleware.NewIPLimiter(10, time.Minute)
+	handlers.NewAuthHandler(authSvc, authLimiter).Register(mux)
 }

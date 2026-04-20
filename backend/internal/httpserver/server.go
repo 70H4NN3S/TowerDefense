@@ -17,10 +17,8 @@ import (
 // pool may be nil; handlers that require the database will panic at route
 // registration time if pool is nil when they are added.
 func New(cfg *config.Config, log *slog.Logger, pool *pgxpool.Pool) *http.Server {
-	_ = pool // pool is unused in Phase 1; wired in as handlers are added.
-
 	mux := http.NewServeMux()
-	registerRoutes(mux)
+	registerRoutes(mux, pool, []byte(cfg.JWTSecret))
 
 	handler := middleware.Chain(
 		mux,
@@ -31,6 +29,19 @@ func New(cfg *config.Config, log *slog.Logger, pool *pgxpool.Pool) *http.Server 
 		middleware.RequireJSON,
 	)
 
+	return &http.Server{
+		Addr:         cfg.ListenAddr,
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+}
+
+// NewWithHandler constructs an *http.Server using the provided handler
+// instead of the default route set. Intended for tests that supply their
+// own mux or middleware stack.
+func NewWithHandler(cfg *config.Config, handler http.Handler) *http.Server {
 	return &http.Server{
 		Addr:         cfg.ListenAddr,
 		Handler:      handler,
