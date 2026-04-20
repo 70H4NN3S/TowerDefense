@@ -249,21 +249,29 @@ func TestRefresh_InvalidToken_Returns401(t *testing.T) {
 
 // --- rate limit ---
 
-func TestRegister_RateLimit_Returns429(t *testing.T) {
-	t.Parallel()
+// newTightLimiterServer returns a test server whose auth limiter allows only
+// capacity requests per minute. Callers use this to trigger 429 responses.
+func newTightLimiterServer(t *testing.T, capacity int) *httptest.Server {
+	t.Helper()
 
 	cfg := &config.Config{ListenAddr: ":0", LogLevel: "error", JWTSecret: "test-secret-32-bytes-for-testing!"}
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 	svc := authtest.NewService([]byte(cfg.JWTSecret))
 
 	mux := http.NewServeMux()
-	// Only 2 requests per minute for this test.
-	limiter := middleware.NewIPLimiter(2, time.Minute)
+	limiter := middleware.NewIPLimiter(capacity, time.Minute)
 	handlers.NewAuthHandler(svc, limiter).Register(mux)
 
 	handler := middleware.Chain(mux, middleware.RequestID, middleware.Logger(log), middleware.Recovery(log), middleware.CORS, middleware.RequireJSON)
 	ts := httptest.NewServer(httpserver.NewWithHandler(cfg, handler).Handler)
 	t.Cleanup(ts.Close)
+	return ts
+}
+
+func TestRegister_RateLimit_Returns429(t *testing.T) {
+	t.Parallel()
+
+	ts := newTightLimiterServer(t, 2)
 
 	body := func(i int) *bytes.Buffer {
 		return jsonBody(map[string]string{
@@ -285,5 +293,37 @@ func TestRegister_RateLimit_Returns429(t *testing.T) {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusTooManyRequests {
 		t.Errorf("status = %d, want 429", resp.StatusCode)
+	}
+}
+
+func TestRefresh_RateLimit_Returns429(t *testing.T) {
+	t.Parallel()
+
+	ts := newTightLimiterServer(t, 2)
+
+	// Register once (consumes 1 of 2 allowed requests).
+	var reg map[string]any
+	r := postJSON(t, ts, "/v1/auth/register", map[string]string{
+		"email":    "refresh-limit@example.com",
+		"username": "refreshlimituser",
+		"password": "correct-horse-battery",
+	})
+	decodeJSON(t, r, &reg)
+
+	refreshToken, _ := reg["refresh_token"].(string)
+
+	// Second request — exhausts the bucket.
+	postJSON(t, ts, "/v1/auth/refresh", map[string]string{
+		"refresh_token": refreshToken,
+	}).Body.Close()
+
+	// Third request must be rate-limited.
+	resp := postJSON(t, ts, "/v1/auth/refresh", map[string]string{
+		"refresh_token": refreshToken,
+	})
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusTooManyRequests {
+		t.Errorf("status = %d, want 429 (refresh must be rate-limited)", resp.StatusCode)
 	}
 }
