@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
@@ -15,6 +16,54 @@ func echoHandler(status int) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(status)
 	})
+}
+
+// --- Logger ---
+
+func TestLogger_CapturesStatusCode(t *testing.T) {
+	t.Parallel()
+
+	var buf strings.Builder
+	log := slog.New(slog.NewTextHandler(&buf, nil))
+
+	handler := middleware.Logger(log)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusTeapot)
+	}))
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/test", nil)
+	handler.ServeHTTP(w, r)
+
+	if w.Code != http.StatusTeapot {
+		t.Errorf("status = %d, want 418", w.Code)
+	}
+	logged := buf.String()
+	if !strings.Contains(logged, "418") {
+		t.Errorf("log output does not contain status 418: %s", logged)
+	}
+	if !strings.Contains(logged, "/test") {
+		t.Errorf("log output does not contain path /test: %s", logged)
+	}
+}
+
+func TestLogger_DefaultStatus200WhenWriteHeaderNotCalled(t *testing.T) {
+	t.Parallel()
+
+	var buf strings.Builder
+	log := slog.New(slog.NewTextHandler(&buf, nil))
+
+	handler := middleware.Logger(log)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		// Write without calling WriteHeader — status should default to 200.
+		_, _ = w.Write([]byte("ok"))
+	}))
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	handler.ServeHTTP(w, r)
+
+	if !strings.Contains(buf.String(), "200") {
+		t.Errorf("log output does not contain default status 200: %s", buf.String())
+	}
 }
 
 // --- Chain ---

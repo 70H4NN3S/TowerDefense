@@ -124,7 +124,7 @@ func sign(secret []byte, data string) string {
 	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 }
 
-// newJTI generates a random 16-byte token ID encoded as hex.
+// newJTI generates a random 16-byte token ID encoded as base64url.
 func newJTI() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

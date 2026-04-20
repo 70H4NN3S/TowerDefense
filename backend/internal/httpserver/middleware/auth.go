@@ -9,6 +9,16 @@ import (
 	"github.com/johannesniedens/towerdefense/internal/uuid"
 )
 
+// writeAuthErr writes a minimal JSON error envelope with the correct
+// Content-Type. It is intentionally simple — the middleware package cannot
+// import respond (circular dependency) so we write the fixed strings directly.
+func writeAuthErr(w http.ResponseWriter, status int, code, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	// Safe to ignore: the header has already been sent.
+	_, _ = w.Write([]byte(`{"error":{"code":"` + code + `","message":"` + message + `"}}`))
+}
+
 type userIDKey struct{}
 
 // Authenticate returns a middleware that validates the Bearer token in the
@@ -19,19 +29,19 @@ func Authenticate(jwtSecret []byte) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token, ok := bearerToken(r)
 			if !ok {
-				http.Error(w, `{"error":{"code":"missing_token","message":"Authorization header required."}}`, http.StatusUnauthorized)
+				writeAuthErr(w, http.StatusUnauthorized, "missing_token", "Authorization header required.")
 				return
 			}
 
 			claims, err := auth.ParseToken(token, jwtSecret)
 			if err != nil {
-				http.Error(w, `{"error":{"code":"invalid_token","message":"Token is invalid or expired."}}`, http.StatusUnauthorized)
+				writeAuthErr(w, http.StatusUnauthorized, "invalid_token", "Token is invalid or expired.")
 				return
 			}
 
 			userID, err := uuid.Parse(claims.Sub)
 			if err != nil {
-				http.Error(w, `{"error":{"code":"invalid_token","message":"Token is invalid or expired."}}`, http.StatusUnauthorized)
+				writeAuthErr(w, http.StatusUnauthorized, "invalid_token", "Token is invalid or expired.")
 				return
 			}
 

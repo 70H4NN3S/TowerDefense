@@ -62,7 +62,9 @@ type tokenResponse struct {
 func (h *AuthHandler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	var req registerRequest
 	if err := decodeBody(r, &req); err != nil {
-		http.Error(w, `{"error":{"code":"invalid_body","message":"Request body is not valid JSON."}}`, http.StatusBadRequest)
+		respond.JSON(w, http.StatusBadRequest, respond.ErrorEnvelope{
+			Error: respond.ErrorDetail{Code: "invalid_body", Message: "Request body is not valid JSON."},
+		})
 		return
 	}
 
@@ -86,7 +88,9 @@ func (h *AuthHandler) handleRegister(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	var req loginRequest
 	if err := decodeBody(r, &req); err != nil {
-		http.Error(w, `{"error":{"code":"invalid_body","message":"Request body is not valid JSON."}}`, http.StatusBadRequest)
+		respond.JSON(w, http.StatusBadRequest, respond.ErrorEnvelope{
+			Error: respond.ErrorDetail{Code: "invalid_body", Message: "Request body is not valid JSON."},
+		})
 		return
 	}
 
@@ -109,7 +113,9 @@ func (h *AuthHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) handleRefresh(w http.ResponseWriter, r *http.Request) {
 	var req refreshRequest
 	if err := decodeBody(r, &req); err != nil {
-		http.Error(w, `{"error":{"code":"invalid_body","message":"Request body is not valid JSON."}}`, http.StatusBadRequest)
+		respond.JSON(w, http.StatusBadRequest, respond.ErrorEnvelope{
+			Error: respond.ErrorDetail{Code: "invalid_body", Message: "Request body is not valid JSON."},
+		})
 		return
 	}
 

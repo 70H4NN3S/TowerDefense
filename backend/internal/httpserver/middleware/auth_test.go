@@ -62,6 +62,9 @@ func TestAuthenticate_MissingHeader(t *testing.T) {
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("status = %d, want 401", w.Code)
 	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Errorf("Content-Type = %q, want application/json", ct)
+	}
 }
 
 func TestAuthenticate_WrongSecret(t *testing.T) {

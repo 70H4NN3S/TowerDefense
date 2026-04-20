@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"fmt"
 	"math"
 	"net"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -38,9 +38,13 @@ func NewIPLimiter(capacity int, window time.Duration) *IPLimiter {
 }
 
 // Allow reports whether the request from ip is within the rate limit.
-// It updates the bucket state as a side effect and evicts stale entries
-// (buckets that have been full for longer than one window) to bound memory use.
-func (l *IPLimiter) Allow(ip string) bool {
+// It updates the bucket state as a side effect and evicts entries that have
+// been idle for longer than one window to bound memory use.
+//
+// The second return value is the number of seconds until a token is available;
+// it is 0 when the request is allowed. Callers should use this value directly
+// rather than calling RetryAfter separately to avoid a TOCTOU window.
+func (l *IPLimiter) Allow(ip string) (allowed bool, retryAfterSecs int) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -51,40 +55,27 @@ func (l *IPLimiter) Allow(ip string) bool {
 		l.buckets[ip] = b
 	}
 
-	// Refill tokens proportional to elapsed time.
+	// Compute elapsed time BEFORE updating lastRefil so the eviction check
+	// can use it as the "idle since last request" duration.
 	elapsed := now.Sub(b.lastRefil).Seconds()
+
+	// Lazy eviction: if the IP has not made a request in longer than one window
+	// it would be refilled to full capacity anyway — evict and allow as fresh.
+	if elapsed > l.window.Seconds() {
+		delete(l.buckets, ip)
+		return true, 0
+	}
+
 	b.tokens = min(l.capacity, b.tokens+elapsed*l.rate)
 	b.lastRefil = now
 
-	// Lazy eviction: remove buckets that have been at full capacity for longer
-	// than one window. These represent IPs that have not made a request recently
-	// and would start fresh on the next request anyway.
-	if b.tokens >= l.capacity && now.Sub(b.lastRefil) > l.window {
-		delete(l.buckets, ip)
-		return true // fresh bucket; allow
-	}
-
 	if b.tokens < 1 {
-		return false
+		need := 1 - b.tokens
+		secs := max(1, int(math.Ceil(need/l.rate)))
+		return false, secs
 	}
 	b.tokens--
-	return true
-}
-
-// RetryAfter returns the number of seconds until the bucket for ip will have
-// at least one token. Returns 0 if the IP is not currently limited.
-func (l *IPLimiter) RetryAfter(ip string) int {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	b, ok := l.buckets[ip]
-	if !ok || b.tokens >= 1 {
-		return 0
-	}
-	// Seconds needed to accumulate (1 - tokens) more tokens at the current rate.
-	need := 1 - b.tokens
-	secs := math.Ceil(need / l.rate)
-	return int(secs)
+	return true, 0
 }
 
 // RateLimit returns a middleware that applies l to every request.
@@ -94,9 +85,8 @@ func RateLimit(l *IPLimiter) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ip := clientIP(r)
-			if !l.Allow(ip) {
-				retryAfter := max(1, l.RetryAfter(ip))
-				w.Header().Set("Retry-After", fmt.Sprintf("%d", retryAfter))
+			if allowed, retryAfter := l.Allow(ip); !allowed {
+				w.Header().Set("Retry-After", strconv.Itoa(retryAfter))
 				http.Error(w, `{"error":{"code":"rate_limited","message":"Too many requests."}}`, http.StatusTooManyRequests)
 				return
 			}

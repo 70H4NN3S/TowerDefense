@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"sort"
@@ -66,7 +67,7 @@ func MigrateDown(ctx context.Context, databaseURL string) error {
 	err = db.QueryRowContext(ctx,
 		`SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1`,
 	).Scan(&version)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil // nothing to roll back
 	}
 	if err != nil {
@@ -142,7 +143,7 @@ func listMigrations(direction string) ([]string, error) {
 // versionOf extracts the migration version identifier from a full path.
 // e.g. "migrations/0001_init.up.sql" → "0001_init"
 func versionOf(path string) string {
-	base := path[len("migrations/"):]
+	base := strings.TrimPrefix(path, "migrations/")
 	base = strings.TrimSuffix(base, ".up.sql")
 	base = strings.TrimSuffix(base, ".down.sql")
 	return base
