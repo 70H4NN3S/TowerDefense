@@ -9,29 +9,29 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 0 — Foundations and tooling
 
 ### Milestone 0.1: Repository bootstrap
-- [ ] Initialize the git repository and create `main` as the permanent branch.
-- [ ] Add `README.md`, `DEVELOPMENT.md`, `CLAUDE.md`, `.claude/` rules and commands.
-- [ ] Add a top-level `.editorconfig`, `.gitignore`, `LICENSE` placeholder.
-- [ ] Create empty `backend/` and `frontend/` directories with placeholder `README.md` files.
+- [x] Initialize the git repository and create `main` as the permanent branch.
+- [x] Add `README.md`, `DEVELOPMENT.md`, `CLAUDE.md`, `.claude/` rules and commands.
+- [x] Add a top-level `.editorconfig`, `.gitignore`, `LICENSE` placeholder.
+- [x] Create empty `backend/` and `frontend/` directories with placeholder `README.md` files.
 
 ### Milestone 0.2: Backend tooling
-- [ ] `cd backend && go mod init <module-path>` using Go 1.22+.
-- [ ] Pin Go version via `go.mod`.
-- [ ] Add a `Makefile` (or `justfile`) with targets: `run`, `test`, `lint`, `fmt`, `migrate-up`, `migrate-down`.
-- [ ] Configure `gofmt`, `go vet`, `staticcheck` (installed once via `go install`).
-- [ ] Confirm CI-friendly: `go test ./... -race -cover`.
+- [x] `cd backend && go mod init <module-path>` using Go 1.22+.
+- [x] Pin Go version via `go.mod`.
+- [x] Add a `Makefile` (or `justfile`) with targets: `run`, `test`, `lint`, `fmt`, `migrate-up`, `migrate-down`.
+- [x] Configure `gofmt`, `go vet`, `staticcheck` (installed once via `go install`).
+- [x] Confirm CI-friendly: `go test ./... -race -cover`.
 
 ### Milestone 0.3: Frontend tooling
-- [ ] `npm create vite@latest frontend -- --template react-ts`.
-- [ ] Configure ESLint + Prettier with the rules in `.claude/rules/code-style.md`.
-- [ ] Add scripts: `dev`, `build`, `preview`, `test`, `lint`, `format`.
-- [ ] Install Vitest + React Testing Library for unit/component tests.
-- [ ] Add Pixi.js as a dependency but do not wire it in yet.
+- [x] `npm create vite@latest frontend -- --template react-ts`.
+- [x] Configure ESLint + Prettier with the rules in `.claude/rules/code-style.md`.
+- [x] Add scripts: `dev`, `build`, `preview`, `test`, `lint`, `format`.
+- [x] Install Vitest + React Testing Library for unit/component tests.
+- [x] Add Pixi.js as a dependency but do not wire it in yet.
 
 ### Milestone 0.4: Local PostgreSQL
-- [ ] Provide a `docker-compose.yml` at the repo root with a pinned `postgres:16` service.
-- [ ] Commit `backend/.env.example` with the minimum env variables (`DATABASE_URL`, `JWT_SECRET`, `LISTEN_ADDR`, `LOG_LEVEL`).
-- [ ] Document how to bring the stack up in `README.md`.
+- [x] Provide a `docker-compose.yml` at the repo root with a pinned `postgres:16` service.
+- [x] Commit `backend/.env.example` with the minimum env variables (`DATABASE_URL`, `JWT_SECRET`, `LISTEN_ADDR`, `LOG_LEVEL`).
+- [x] Document how to bring the stack up in `README.md`.
 
 ---
 
