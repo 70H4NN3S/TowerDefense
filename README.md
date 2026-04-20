@@ -64,24 +64,25 @@ Clash Royale-style vertical layout with a persistent bottom navigation bar expos
 
 ## Getting Started
 
-Prerequisites: Go 1.22+, PostgreSQL 15+, Node.js 20+, and the Capacitor CLI once you reach the mobile-packaging phase.
+Prerequisites: Go 1.26+, PostgreSQL 16+ (or Docker), Node.js 20+, and the Capacitor CLI once you reach the mobile-packaging phase.
 
 ```bash
-# Clone and enter the repo
-git clone <repo-url>
-cd tower-defense
+# 1. Start local PostgreSQL
+docker-compose up -d
 
-# Backend
+# 2. Backend
 cd backend
-cp .env.example .env              # edit DB credentials
-go run ./cmd/server
+cp .env.example .env   # credentials match docker-compose defaults; no edits needed locally
+make migrate-up
+make run
 
-# Frontend (in another terminal)
+# 3. Frontend (in another terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
+See `backend/README.md` for all available `make` targets.
 Database setup, migrations, and production deployment are covered in `DEVELOPMENT.md`.
 
 ## Development Workflow
