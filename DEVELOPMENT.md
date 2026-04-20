@@ -38,27 +38,27 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 1 — Backend core infrastructure
 
 ### Milestone 1.1: Configuration and logging
-- [ ] `internal/config/config.go` — loads env vars, validates them, returns an immutable `Config` struct. **No external library**; use `os.Getenv` + a small helper.
-- [ ] `internal/logging/logging.go` — thin wrapper over `log/slog` (stdlib). Export `New(level string) *slog.Logger`.
-- [ ] Unit tests for both modules.
+- [x] `internal/config/config.go` — loads env vars, validates them, returns an immutable `Config` struct. **No external library**; use `os.Getenv` + a small helper.
+- [x] `internal/logging/logging.go` — thin wrapper over `log/slog` (stdlib). Export `New(level string) *slog.Logger`.
+- [x] Unit tests for both modules.
 
 ### Milestone 1.2: Database connection and migrations
-- [ ] `internal/db/db.go` — opens a `*pgxpool.Pool`, applies sensible defaults (max conns, lifetime, ping on start).
-- [ ] `internal/db/migrations/` — numbered SQL files: `0001_init.up.sql`, `0001_init.down.sql`.
-- [ ] `cmd/migrate/main.go` — a tiny migration runner built on top of `database/sql` + `pgx/stdlib` that reads files in lexicographic order and records applied migrations in `schema_migrations`. **Do not pull in `golang-migrate`.**
-- [ ] Unit tests for migration ordering and idempotency.
+- [x] `internal/db/db.go` — opens a `*pgxpool.Pool`, applies sensible defaults (max conns, lifetime, ping on start).
+- [x] `internal/db/migrations/` — numbered SQL files: `0001_init.up.sql`, `0001_init.down.sql`.
+- [x] `cmd/migrate/main.go` — a tiny migration runner built on top of `database/sql` + `pgx/stdlib` that reads files in lexicographic order and records applied migrations in `schema_migrations`. **Do not pull in `golang-migrate`.**
+- [x] Unit tests for migration ordering and idempotency.
 
 ### Milestone 1.3: HTTP server skeleton
-- [ ] `cmd/server/main.go` — starts an `http.Server` with graceful shutdown via `signal.NotifyContext`.
-- [ ] `internal/httpserver/router.go` — custom router built on `http.ServeMux` (Go 1.22 pattern matching is enough).
-- [ ] `internal/httpserver/middleware/` — request logging, panic recovery, request ID, CORS, JSON content-type enforcement.
-- [ ] `GET /healthz` returns `200 OK` with build info.
-- [ ] Integration test: spin the server on an ephemeral port and hit `/healthz`.
+- [x] `cmd/server/main.go` — starts an `http.Server` with graceful shutdown via `signal.NotifyContext`.
+- [x] `internal/httpserver/router.go` — custom router built on `http.ServeMux` (Go 1.22 pattern matching is enough).
+- [x] `internal/httpserver/middleware/` — request logging, panic recovery, request ID, CORS, JSON content-type enforcement.
+- [x] `GET /healthz` returns `200 OK` with build info.
+- [x] Integration test: spin the server on an ephemeral port and hit `/healthz`.
 
 ### Milestone 1.4: Response and error conventions
-- [ ] `internal/httpserver/respond.go` — `RespondJSON`, `RespondError`, shared error envelope.
-- [ ] Conform to the conventions in `.claude/rules/error-handling.md`.
-- [ ] Unit tests for every helper.
+- [x] `internal/httpserver/respond.go` — `RespondJSON`, `RespondError`, shared error envelope.
+- [x] Conform to the conventions in `.claude/rules/error-handling.md`.
+- [x] Unit tests for every helper.
 
 ---
 
