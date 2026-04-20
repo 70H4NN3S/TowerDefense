@@ -1,6 +1,10 @@
 package httpserver
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/johannesniedens/towerdefense/internal/httpserver/respond"
+)
 
 // buildVersion is overridden at link time via
 //
@@ -10,7 +14,7 @@ import "net/http"
 var buildVersion = "dev"
 
 func handleHealthz(w http.ResponseWriter, _ *http.Request) {
-	RespondJSON(w, http.StatusOK, map[string]string{
+	respond.JSON(w, http.StatusOK, map[string]string{
 		"status":  "ok",
 		"version": buildVersion,
 	})
