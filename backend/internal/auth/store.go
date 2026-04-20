@@ -47,9 +47,9 @@ func newUserStore(pool *pgxpool.Pool) *userStore {
 	return &userStore{pool: pool}
 }
 
-// createUser inserts a new row into users and returns the created User.
+// CreateUser inserts a new row into users and returns the created User.
 // Maps unique-constraint violations to ErrEmailTaken or ErrUsernameTaken.
-func (s *userStore) createUser(ctx context.Context, nu NewUser) (User, error) {
+func (s *userStore) CreateUser(ctx context.Context, nu NewUser) (User, error) {
 	const q = `
 		INSERT INTO users (email, username, password_hash)
 		VALUES ($1, $2, $3)
@@ -78,9 +78,9 @@ func (s *userStore) createUser(ctx context.Context, nu NewUser) (User, error) {
 	return u, nil
 }
 
-// getUserByEmail looks up a user by their email address.
+// GetUserByEmail looks up a user by their email address.
 // Returns ErrNotFound when no row exists.
-func (s *userStore) getUserByEmail(ctx context.Context, email string) (User, error) {
+func (s *userStore) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	const q = `
 		SELECT id::text, email, username, password_hash, trophies, created_at, updated_at
 		FROM   users
@@ -89,9 +89,9 @@ func (s *userStore) getUserByEmail(ctx context.Context, email string) (User, err
 	return s.scanUser(s.pool.QueryRow(ctx, q, email))
 }
 
-// getUserByID looks up a user by their UUID primary key.
+// GetUserByID looks up a user by their UUID primary key.
 // Returns ErrNotFound when no row exists.
-func (s *userStore) getUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+func (s *userStore) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	const q = `
 		SELECT id::text, email, username, password_hash, trophies, created_at, updated_at
 		FROM   users

@@ -23,7 +23,7 @@ func newFakeStore() *fakeStore {
 	}
 }
 
-func (f *fakeStore) createUser(_ context.Context, nu NewUser) (User, error) {
+func (f *fakeStore) CreateUser(_ context.Context, nu NewUser) (User, error) {
 	if _, exists := f.byEmail[nu.Email]; exists {
 		return User{}, ErrEmailTaken
 	}
@@ -39,7 +39,7 @@ func (f *fakeStore) createUser(_ context.Context, nu NewUser) (User, error) {
 	return u, nil
 }
 
-func (f *fakeStore) getUserByEmail(_ context.Context, email string) (User, error) {
+func (f *fakeStore) GetUserByEmail(_ context.Context, email string) (User, error) {
 	u, ok := f.byEmail[email]
 	if !ok {
 		return User{}, ErrNotFound
@@ -47,7 +47,7 @@ func (f *fakeStore) getUserByEmail(_ context.Context, email string) (User, error
 	return u, nil
 }
 
-func (f *fakeStore) getUserByID(_ context.Context, id uuid.UUID) (User, error) {
+func (f *fakeStore) GetUserByID(_ context.Context, id uuid.UUID) (User, error) {
 	u, ok := f.byID[id]
 	if !ok {
 		return User{}, ErrNotFound
