@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS event_progress;
+DROP TABLE IF EXISTS events;
