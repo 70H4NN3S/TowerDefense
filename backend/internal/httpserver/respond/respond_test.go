@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/johannesniedens/towerdefense/internal/auth"
+	"github.com/johannesniedens/towerdefense/internal/game"
 	"github.com/johannesniedens/towerdefense/internal/models"
 )
 
@@ -76,6 +77,9 @@ func TestError_DomainErrors(t *testing.T) {
 		wantCode   string
 	}{
 		{"unhandled error", errors.New("boom"), http.StatusInternalServerError, "internal"},
+		// Matchmaking errors
+		{"already queued", game.ErrAlreadyQueued, http.StatusConflict, "already_queued"},
+		// Auth errors
 		{"invalid credentials", auth.ErrInvalidCredentials, http.StatusUnauthorized, "invalid_credentials"},
 		{"email taken", auth.ErrEmailTaken, http.StatusConflict, "email_taken"},
 		{"username taken", auth.ErrUsernameTaken, http.StatusConflict, "username_taken"},

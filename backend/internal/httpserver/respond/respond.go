@@ -95,6 +95,9 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 		writeErr(w, http.StatusConflict, reqID, "match_already_ended", "This match has already ended.")
 	case errors.Is(err, game.ErrUnknownMap):
 		writeErr(w, http.StatusBadRequest, reqID, "unknown_map", "Unknown map ID.")
+	// Matchmaking errors
+	case errors.Is(err, game.ErrAlreadyQueued):
+		writeErr(w, http.StatusConflict, reqID, "already_queued", "You are already in the matchmaking queue.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")

@@ -34,7 +34,16 @@ func registerRoutes(ctx context.Context, mux *http.ServeMux, pool *pgxpool.Pool,
 	matchSvc := game.NewMatchService(pool, profileSvc)
 	handlers.NewMatchHandler(matchSvc, jwtSecret).Register(mux)
 
+	matchStore := game.NewMatchStore(pool)
 	hub := ws.NewHub()
 	go hub.Run(ctx)
+
+	sessionMgr := game.NewSessionManager(matchStore, profileSvc, hub, time.Now)
+	matchmaker := game.NewMatchmaker(matchStore, sessionMgr, hub, time.Now)
+	go matchmaker.Run(ctx)
+
+	hub.SetDispatch(sessionMgr.Dispatch)
+
+	handlers.NewMatchmakingHandler(matchmaker, profileSvc, jwtSecret).Register(mux)
 	ws.NewHandler(hub, jwtSecret).Register(mux)
 }

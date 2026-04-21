@@ -24,6 +24,16 @@ Format: `## <slug>` then bullet points with author, date, and context.
   Claims struct; only the store logic and migration are missing.
   Priority: high — ship before any public release.
 
+## multiplayer-elo-trophy-loss
+
+- **Author:** claude, 2026-04-21
+- **Context:** `session.endMatch` currently awards +25 trophies on co-op victory and
+  0 on defeat. A proper ELO-lite system should also deduct trophies on defeat (e.g.
+  −15) and scale gains by the expected win probability based on the matchmaking bucket
+  difference. The `sessionPlayer.trophies` field is already captured at match start to
+  support this calculation. Implement once the leaderboard feature lands (Phase 8+).
+  Priority: medium — ship before ranked seasons begin.
+
 ## migration-multi-statement
 
 - **Author:** claude, 2026-04-20
