@@ -24,6 +24,14 @@ const (
 	TypeMatchInput    = "match.input"
 	TypeMatchSnapshot = "match.snapshot"
 	TypeMatchEnded    = "match.ended"
+
+	// Chat messages.
+	// TypeChatMessage is pushed by the server when a new message is sent to a
+	// channel the connected user is a member of.
+	TypeChatMessage = "chat.message"
+	// TypeChatTyping is sent by the client to indicate the user is typing, and
+	// re-broadcast by the server to the other channel members.
+	TypeChatTyping = "chat.typing"
 )
 
 // DispatchFunc is called by the hub for every incoming message that the hub
