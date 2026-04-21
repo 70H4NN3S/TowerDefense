@@ -1,0 +1,2 @@
+DROP MATERIALIZED VIEW IF EXISTS alliance_leaderboard;
+DROP MATERIALIZED VIEW IF EXISTS global_leaderboard;
