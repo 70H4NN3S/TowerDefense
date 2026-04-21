@@ -305,7 +305,7 @@ func TestAddDiamonds(t *testing.T) {
 func TestSpendDiamonds(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name         string
+		name          string
 		startDiamonds int64
 		amount        int64
 		wantDiamonds  int64
