@@ -237,6 +237,13 @@ func newMatchStore(pool *pgxpool.Pool) *matchStore {
 	return &matchStore{pool: pool}
 }
 
+// NewMatchStore constructs a MatchStore backed by pool.
+// Exported so the store can be shared between MatchService, Matchmaker, and
+// SessionManager without each creating an independent connection.
+func NewMatchStore(pool *pgxpool.Pool) MatchStore {
+	return newMatchStore(pool)
+}
+
 const matchColumns = `
 	id::text, player_one::text, player_two::text, mode, map_id,
 	seed, started_at, ended_at, winner::text, created_at`
@@ -293,8 +300,13 @@ func (s *matchStore) InsertMatch(ctx context.Context, m Match) (Match, error) {
 		VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5, $6, $7, $7)
 		RETURNING` + matchColumns
 
+	var p2 *string
+	if m.PlayerTwo != nil {
+		s := m.PlayerTwo.String()
+		p2 = &s
+	}
 	row := s.pool.QueryRow(ctx, q,
-		m.ID.String(), m.PlayerOne.String(), nil, m.Mode, m.MapID, m.Seed, m.StartedAt,
+		m.ID.String(), m.PlayerOne.String(), p2, m.Mode, m.MapID, m.Seed, m.StartedAt,
 	)
 	out, err := scanMatch(row)
 	if err != nil {

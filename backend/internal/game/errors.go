@@ -48,4 +48,12 @@ var (
 	// ErrUnknownMap is returned when StartSinglePlayer receives a map ID that
 	// does not exist in the sim registry.
 	ErrUnknownMap = errors.New("unknown map id")
+
+	// ErrAlreadyQueued is returned when a player tries to join matchmaking
+	// but is already waiting in the queue.
+	ErrAlreadyQueued = errors.New("already in matchmaking queue")
+
+	// ErrNotQueued is returned when a player tries to leave matchmaking
+	// but is not currently in the queue.
+	ErrNotQueued = errors.New("not in matchmaking queue")
 )
