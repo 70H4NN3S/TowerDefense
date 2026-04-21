@@ -3,6 +3,7 @@ module github.com/johannesniedens/towerdefense
 go 1.26
 
 require (
+	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgx/v5 v5.9.2
 	golang.org/x/crypto v0.50.0
 )

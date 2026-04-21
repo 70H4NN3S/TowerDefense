@@ -35,7 +35,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	srv := httpserver.New(cfg, log, pool)
+	srv := httpserver.New(ctx, cfg, log, pool)
 
 	go func() {
 		log.Info("server starting", "addr", cfg.ListenAddr)

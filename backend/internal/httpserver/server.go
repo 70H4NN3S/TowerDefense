@@ -3,6 +3,7 @@
 package httpserver
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
@@ -14,11 +15,12 @@ import (
 )
 
 // New constructs and returns a configured *http.Server.
+// ctx governs the lifetime of background goroutines (e.g. the WebSocket hub).
 // pool may be nil; handlers that require the database will panic at route
 // registration time if pool is nil when they are added.
-func New(cfg *config.Config, log *slog.Logger, pool *pgxpool.Pool) *http.Server {
+func New(ctx context.Context, cfg *config.Config, log *slog.Logger, pool *pgxpool.Pool) *http.Server {
 	mux := http.NewServeMux()
-	registerRoutes(mux, pool, []byte(cfg.JWTSecret))
+	registerRoutes(ctx, mux, pool, []byte(cfg.JWTSecret))
 
 	handler := middleware.Chain(
 		mux,

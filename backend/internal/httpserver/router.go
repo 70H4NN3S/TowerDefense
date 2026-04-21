@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -10,11 +11,13 @@ import (
 	"github.com/johannesniedens/towerdefense/internal/game"
 	"github.com/johannesniedens/towerdefense/internal/httpserver/handlers"
 	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
+	"github.com/johannesniedens/towerdefense/internal/ws"
 )
 
 // registerRoutes wires all application routes onto mux.
+// ctx governs the lifetime of the WebSocket hub.
 // Handlers are thin: they decode, validate, call a service, and respond.
-func registerRoutes(mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
+func registerRoutes(ctx context.Context, mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
 	mux.HandleFunc("GET /healthz", handleHealthz)
 
 	authSvc := auth.NewService(pool, jwtSecret)
@@ -30,4 +33,8 @@ func registerRoutes(mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
 
 	matchSvc := game.NewMatchService(pool, profileSvc)
 	handlers.NewMatchHandler(matchSvc, jwtSecret).Register(mux)
+
+	hub := ws.NewHub()
+	go hub.Run(ctx)
+	ws.NewHandler(hub, jwtSecret).Register(mux)
 }

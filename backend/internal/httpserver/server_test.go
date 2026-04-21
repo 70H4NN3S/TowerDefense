@@ -16,7 +16,7 @@ func newTestServer(t *testing.T) *httptest.Server {
 	t.Helper()
 	cfg := &config.Config{ListenAddr: ":0", LogLevel: "error"}
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv := httpserver.New(cfg, log, nil)
+	srv := httpserver.New(t.Context(), cfg, log, nil)
 	ts := httptest.NewServer(srv.Handler)
 	t.Cleanup(ts.Close)
 	return ts
