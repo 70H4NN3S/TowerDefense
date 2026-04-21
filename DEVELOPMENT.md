@@ -161,10 +161,10 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 6 — WebSocket infrastructure
 
 ### Milestone 6.1: WS endpoint
-- [ ] `internal/ws/hub.go` — a Hub that tracks connected clients by user ID; register/unregister through channels.
-- [ ] `internal/ws/client.go` — read/write pumps, ping/pong, backpressure.
-- [ ] `GET /v1/ws` — authenticates via token in the query string or `Sec-WebSocket-Protocol` header, upgrades.
-- [ ] Tests using `httptest.NewServer` and a WS client helper.
+- [x] `internal/ws/hub.go` — a Hub that tracks connected clients by user ID; register/unregister through channels.
+- [x] `internal/ws/client.go` — read/write pumps, ping/pong, backpressure.
+- [x] `GET /v1/ws` — authenticates via token in the query string or `Sec-WebSocket-Protocol` header, upgrades.
+- [x] Tests using `httptest.NewServer` and a WS client helper.
 
 ### Milestone 6.2: Message protocol
 - [ ] `internal/ws/protocol.go` — tagged JSON messages: `{"type": "...", "payload": {...}}`.
