@@ -113,26 +113,26 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 4 — Towers and shop
 
 ### Milestone 4.1: Tower catalog
-- [ ] Migration `0004_towers.up.sql`:
+- [x] Migration `0004_towers.up.sql`:
   - `tower_templates(id, name, rarity, base_damage, base_range, base_rate, cost_diamonds, description)` — static catalog.
   - `tower_levels(template_id, level, gold_cost, damage, range_, rate)` — 10 rows per template describing each upgrade.
   - `owned_towers(user_id, template_id, level, unlocked_at, primary key (user_id, template_id))`.
-- [ ] Seed a handful of starter towers via a `0004_towers_seed.up.sql` migration.
+- [x] Seed a handful of starter towers via a `0004_towers_seed.up.sql` migration.
 
 ### Milestone 4.2: Tower service
-- [ ] `internal/game/towers.go`:
+- [x] `internal/game/towers.go`:
   - `ListCatalog(ctx)` — returns the full catalog.
   - `ListOwned(ctx, userID)`.
   - `Purchase(ctx, userID, templateID)` — debits diamonds, inserts `owned_towers`, rejects duplicates.
   - `LevelUp(ctx, userID, templateID)` — debits gold based on `tower_levels`, caps at level 10.
-- [ ] Unit tests for every branch.
+- [x] Unit tests for every branch.
 
 ### Milestone 4.3: Shop and towers endpoints
-- [ ] `GET /v1/shop/towers` — catalog with an `owned` flag.
-- [ ] `POST /v1/shop/towers/{id}/buy` — wraps `Purchase`.
-- [ ] `GET /v1/towers` — owned towers with current stats.
-- [ ] `POST /v1/towers/{id}/upgrade` — wraps `LevelUp`.
-- [ ] Integration tests covering insufficient resources, max level, unknown template.
+- [x] `GET /v1/shop/towers` — catalog with an `owned` flag.
+- [x] `POST /v1/shop/towers/{id}/buy` — wraps `Purchase`.
+- [x] `GET /v1/towers` — owned towers with current stats.
+- [x] `POST /v1/towers/{id}/upgrade` — wraps `LevelUp`.
+- [x] Integration tests covering insufficient resources, max level, unknown template.
 
 ---
 
