@@ -122,6 +122,43 @@ func TestUnmarshal_Errors(t *testing.T) {
 	}
 }
 
+func TestMatchMessageTypeConstants(t *testing.T) {
+	t.Parallel()
+	// Verify the string values are stable (clients depend on them).
+	cases := map[string]string{
+		TypeMatchFound:    "match.found",
+		TypeMatchInput:    "match.input",
+		TypeMatchSnapshot: "match.snapshot",
+		TypeMatchEnded:    "match.ended",
+	}
+	for got, want := range cases {
+		if got != want {
+			t.Errorf("constant = %q, want %q", got, want)
+		}
+	}
+}
+
+func TestEnvelope_Decode(t *testing.T) {
+	t.Parallel()
+
+	orig := ErrorPayload{Code: "test", Message: "hello"}
+	data, err := Marshal(TypeError, orig)
+	if err != nil {
+		t.Fatalf("Marshal: %v", err)
+	}
+	env, err := Unmarshal(data, nil)
+	if err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
+	var got ErrorPayload
+	if err := env.Decode(&got); err != nil {
+		t.Fatalf("Decode: %v", err)
+	}
+	if got != orig {
+		t.Errorf("got %+v, want %+v", got, orig)
+	}
+}
+
 func TestUnmarshal_PayloadDecodeError(t *testing.T) {
 	t.Parallel()
 

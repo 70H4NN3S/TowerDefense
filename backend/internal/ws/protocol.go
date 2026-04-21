@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
+	"github.com/johannesniedens/towerdefense/internal/uuid"
 )
 
 // Version is the current protocol version. It is included in every envelope
@@ -16,7 +18,19 @@ const (
 	TypePing  = "ping"
 	TypePong  = "pong"
 	TypeError = "error"
+
+	// Multiplayer match messages.
+	TypeMatchFound    = "match.found"
+	TypeMatchInput    = "match.input"
+	TypeMatchSnapshot = "match.snapshot"
+	TypeMatchEnded    = "match.ended"
 )
+
+// DispatchFunc is called by the hub for every incoming message that the hub
+// does not handle internally (i.e. everything except ping/pong).
+// msgType is env.Type; payload is env.Payload (raw JSON).
+// It must be safe to call concurrently.
+type DispatchFunc func(userID uuid.UUID, msgType string, payload json.RawMessage)
 
 // Envelope is the outer wrapper for every WebSocket message.
 //
@@ -37,6 +51,11 @@ type PongPayload struct{}
 type ErrorPayload struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
+}
+
+// Decode decodes the Envelope's Payload field into dst (a non-nil pointer).
+func (e Envelope) Decode(dst any) error {
+	return json.Unmarshal(e.Payload, dst)
 }
 
 // Marshal builds a JSON-encoded Envelope for the given type and payload.

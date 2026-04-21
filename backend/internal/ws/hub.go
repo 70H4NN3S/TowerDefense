@@ -2,6 +2,7 @@ package ws
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 
 	"github.com/johannesniedens/towerdefense/internal/uuid"
@@ -38,6 +39,10 @@ type Hub struct {
 	// clients maps user ID → set of active connections. One user can hold
 	// multiple connections (e.g. reconnect before the old TCP conn times out).
 	clients map[uuid.UUID]map[*Client]bool
+
+	// dispatch is called for every incoming message that the hub does not
+	// handle internally. Set once before Run; never mutated afterward.
+	dispatch DispatchFunc
 }
 
 // NewHub constructs a ready-to-use Hub. Call Run to start the event loop.
@@ -45,6 +50,20 @@ func NewHub() *Hub {
 	return &Hub{
 		ops:     make(chan hubMsg, 64),
 		clients: make(map[uuid.UUID]map[*Client]bool),
+	}
+}
+
+// SetDispatch wires the function that receives non-internal incoming messages.
+// Must be called before Run starts.
+func (h *Hub) SetDispatch(d DispatchFunc) {
+	h.dispatch = d
+}
+
+// Dispatch calls the registered DispatchFunc for the given message.
+// Safe to call from any goroutine.
+func (h *Hub) Dispatch(userID uuid.UUID, msgType string, payload json.RawMessage) {
+	if h.dispatch != nil {
+		h.dispatch(userID, msgType, payload)
 	}
 }
 

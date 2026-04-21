@@ -92,8 +92,8 @@ func (c *Client) ReadPump() {
 				slog.Warn("ws: send buffer full dropping pong", "user_id", c.userID)
 			}
 		default:
-			// Unknown / future message types are silently ignored at this phase.
-			slog.Debug("ws: unhandled message type", "user_id", c.userID, "type", env.Type)
+			// Route to the registered dispatcher (e.g. game session manager).
+			c.hub.Dispatch(c.userID, env.Type, env.Payload)
 		}
 	}
 }
