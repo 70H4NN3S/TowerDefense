@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/chat"
 	"github.com/70H4NN3S/TowerDefense/internal/game"
 	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
 	"github.com/70H4NN3S/TowerDefense/internal/models"
@@ -98,6 +99,15 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 	// Matchmaking errors
 	case errors.Is(err, game.ErrAlreadyQueued):
 		writeErr(w, http.StatusConflict, reqID, "already_queued", "You are already in the matchmaking queue.")
+	// Chat errors
+	case errors.Is(err, chat.ErrChannelNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "channel_not_found", "Chat channel not found.")
+	case errors.Is(err, chat.ErrNotMember):
+		writeErr(w, http.StatusForbidden, reqID, "not_member", "You are not a member of this channel.")
+	case errors.Is(err, chat.ErrBodyEmpty):
+		writeErr(w, http.StatusUnprocessableEntity, reqID, "body_empty", "Message body must not be empty.")
+	case errors.Is(err, chat.ErrBodyTooLong):
+		writeErr(w, http.StatusUnprocessableEntity, reqID, "body_too_long", "Message body exceeds 500 characters.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")
