@@ -216,47 +216,47 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 9 — Alliances
 
 ### Milestone 9.1: Schema
-- [ ] `alliances(id, name unique, tag unique, description, leader_id, created_at)`.
-- [ ] `alliance_members(user_id pk, alliance_id, role, joined_at)` — role ∈ {leader, officer, member}.
-- [ ] `alliance_invites(id, alliance_id, user_id, status, created_at)`.
+- [x] `alliances(id, name unique, tag unique, description, leader_id, created_at)`.
+- [x] `alliance_members(user_id pk, alliance_id, role, joined_at)` — role ∈ {leader, officer, member}.
+- [x] `alliance_invites(id, alliance_id, user_id, status, created_at)`.
 
 ### Milestone 9.2: Alliance service
-- [ ] `Create`, `Disband`, `Invite`, `AcceptInvite`, `Leave`, `Promote`, `Demote`, `Kick`.
-- [ ] Automatically create an alliance chat channel on creation and add all members.
-- [ ] Tests for every permission branch (officer can't disband, leader must transfer before leaving, etc.).
+- [x] `Create`, `Disband`, `Invite`, `AcceptInvite`, `Leave`, `Promote`, `Demote`, `Kick`.
+- [x] Automatically create an alliance chat channel on creation and add all members.
+- [x] Tests for every permission branch (officer can't disband, leader must transfer before leaving, etc.).
 
 ### Milestone 9.3: Alliance endpoints
-- [ ] REST endpoints mirroring the service surface.
-- [ ] Tests.
+- [x] REST endpoints mirroring the service surface.
+- [x] Tests.
 
 ---
 
 ## Phase 10 — Leaderboard
 
 ### Milestone 10.1: Global leaderboard
-- [ ] Materialized view refreshed every N minutes: `global_leaderboard(rank, user_id, trophies)`.
-- [ ] `GET /v1/leaderboard/global?limit=&cursor=`.
-- [ ] Tests for ranking stability and cursor pagination.
+- [x] Materialized view refreshed every N minutes: `global_leaderboard(rank, user_id, trophies)`.
+- [x] `GET /v1/leaderboard/global?limit=&cursor=`.
+- [x] Tests for ranking stability and cursor pagination.
 
 ### Milestone 10.2: Alliance leaderboard
-- [ ] `alliance_leaderboard(alliance_id, total_trophies, member_count)` — similar approach.
-- [ ] `GET /v1/leaderboard/alliances`.
-- [ ] Per-alliance member rankings: `GET /v1/alliances/{id}/leaderboard`.
+- [x] `alliance_leaderboard(alliance_id, total_trophies, member_count)` — similar approach.
+- [x] `GET /v1/leaderboard/alliances`.
+- [x] Per-alliance member rankings: `GET /v1/alliances/{id}/leaderboard`.
 
 ---
 
 ## Phase 11 — Events
 
 ### Milestone 11.1: Event framework
-- [ ] `events(id, kind, name, description, starts_at, ends_at, config jsonb)`.
-- [ ] `event_progress(event_id, user_id, progress jsonb, claimed_rewards jsonb)`.
-- [ ] Event engine in `internal/events/engine.go` with a `Kind` interface; start with one concrete kind (`kill_n_monsters`).
+- [x] `events(id, kind, name, description, starts_at, ends_at, config jsonb)`.
+- [x] `event_progress(event_id, user_id, progress jsonb, claimed_rewards jsonb)`.
+- [x] Event engine in `internal/events/engine.go` with a `Kind` interface; start with one concrete kind (`kill_n_monsters`).
 
 ### Milestone 11.2: Event endpoints
-- [ ] `GET /v1/events` — active/upcoming events.
-- [ ] `POST /v1/events/{id}/claim` — claim a reward tier.
-- [ ] Match results call `engine.RecordProgress(userID, eventContext)`.
-- [ ] Tests for the event engine, reward idempotency, event time boundaries.
+- [x] `GET /v1/events` — active/upcoming events.
+- [x] `POST /v1/events/{id}/claim` — claim a reward tier.
+- [x] Match results call `engine.RecordProgress(userID, eventContext)`.
+- [x] Tests for the event engine, reward idempotency, event time boundaries.
 
 ---
 
