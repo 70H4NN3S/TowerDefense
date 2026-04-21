@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/johannesniedens/towerdefense/internal/auth"
+	"github.com/johannesniedens/towerdefense/internal/game"
 	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
 	"github.com/johannesniedens/towerdefense/internal/models"
 )
@@ -55,6 +56,7 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 	}
 
 	switch {
+	// Auth errors
 	case errors.Is(err, auth.ErrInvalidCredentials):
 		writeErr(w, http.StatusUnauthorized, reqID, "invalid_credentials", "Invalid email or password.")
 	case errors.Is(err, auth.ErrEmailTaken):
@@ -67,6 +69,15 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 		writeErr(w, http.StatusUnauthorized, reqID, "token_expired", "Token has expired.")
 	case errors.Is(err, auth.ErrInvalidToken):
 		writeErr(w, http.StatusUnauthorized, reqID, "invalid_token", "Token is invalid.")
+	// Game errors
+	case errors.Is(err, game.ErrProfileNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "profile_not_found", "Player profile not found.")
+	case errors.Is(err, game.ErrInsufficientGold):
+		writeErr(w, http.StatusConflict, reqID, "insufficient_gold", "Not enough gold.")
+	case errors.Is(err, game.ErrInsufficientDiamonds):
+		writeErr(w, http.StatusConflict, reqID, "insufficient_diamonds", "Not enough diamonds.")
+	case errors.Is(err, game.ErrInsufficientEnergy):
+		writeErr(w, http.StatusConflict, reqID, "insufficient_energy", "Not enough energy.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")

@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/johannesniedens/towerdefense/internal/auth"
+	"github.com/johannesniedens/towerdefense/internal/game"
 	"github.com/johannesniedens/towerdefense/internal/httpserver/handlers"
 	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
 )
@@ -19,4 +20,7 @@ func registerRoutes(mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
 	authSvc := auth.NewService(pool, jwtSecret)
 	authLimiter := middleware.NewIPLimiter(10, time.Minute)
 	handlers.NewAuthHandler(authSvc, authLimiter).Register(mux)
+
+	profileSvc := game.NewResourceService(pool)
+	handlers.NewProfileHandler(profileSvc, jwtSecret).Register(mux)
 }

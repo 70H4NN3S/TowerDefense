@@ -245,13 +245,20 @@ func scanProfile(row pgx.Row) (Profile, error) {
 }
 
 func (s *profileStore) CreateProfile(ctx context.Context, userID uuid.UUID) (Profile, error) {
+	// ON CONFLICT DO NOTHING makes this idempotent: calling CreateProfile for a
+	// user that already has a profile is safe and returns the existing row.
 	const q = `
 		INSERT INTO profiles (user_id)
 		VALUES ($1::uuid)
+		ON CONFLICT (user_id) DO NOTHING
 		RETURNING` + profileColumns
 
 	p, err := scanProfile(s.pool.QueryRow(ctx, q, userID.String()))
 	if err != nil {
+		// ON CONFLICT DO NOTHING returns no row; fall back to a SELECT.
+		if errors.Is(err, ErrProfileNotFound) {
+			return s.GetProfile(ctx, userID)
+		}
 		return Profile{}, fmt.Errorf("create profile: %w", err)
 	}
 	return p, nil
