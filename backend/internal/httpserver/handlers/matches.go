@@ -82,7 +82,7 @@ func (h *MatchHandler) handleStart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req startMatchRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := decodeBody(r, &req); err != nil {
 		respond.JSON(w, http.StatusBadRequest, respond.ErrorEnvelope{
 			Error: respond.ErrorDetail{Code: "invalid_body", Message: "Request body is not valid JSON."},
 		})

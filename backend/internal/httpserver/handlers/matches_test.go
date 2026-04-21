@@ -98,6 +98,19 @@ func TestMatchStart_InvalidJSON_Returns400(t *testing.T) {
 	}
 }
 
+func TestMatchStart_UnknownField_Returns400(t *testing.T) {
+	t.Parallel()
+	mux := newMatchMux(newFakeMatchSvc())
+	tok := signedToken(t, uuid.New())
+	// Extra field must be rejected; every other handler already does this via
+	// decodeBody — this test guards against the handler regressing back to a
+	// plain json.Decoder that ignores unknown fields.
+	w := doRequest(mux, http.MethodPost, "/v1/matches", tok, `{"map_id":"alpha","extra_field":true}`)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400 for unknown field", w.Code)
+	}
+}
+
 func TestMatchStart_HappyPath_Returns201(t *testing.T) {
 	t.Parallel()
 	svc := newFakeMatchSvc()
