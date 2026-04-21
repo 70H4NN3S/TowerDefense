@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
@@ -302,6 +303,62 @@ func TestSession_EndMatch_Defeat(t *testing.T) {
 	}
 	if env.P.TrophyDelta != 0 {
 		t.Errorf("trophy_delta = %d, want 0 on defeat", env.P.TrophyDelta)
+	}
+}
+
+func TestSession_EndMatch_DBFailureAbortsAwards(t *testing.T) {
+	t.Parallel()
+
+	mgr, store, res, hub := newTestSessionManager(t, defaultTickDt)
+	p1, p2 := uuid.New(), uuid.New()
+	res.profiles[p1] = Profile{UserID: p1, Gold: 0, Trophies: 100}
+	res.profiles[p2] = Profile{UserID: p2, Gold: 0, Trophies: 100}
+
+	m := newTestMatch(t, store, p1, p2)
+
+	// Inject a DB error so EndMatch fails.
+	store.endMatchErr = errors.New("simulated DB failure")
+
+	simMap, waves, _ := sim.LookupMap("alpha")
+	state := sim.InitialState(simMap, waves)
+	state.Gold = 300
+	state.WaveIdx = len(waves) // victory condition met
+	halfCols := simMap.Cols / 2
+	sess := buildSession(mgr, m, p1, p2, state, halfCols)
+
+	// Register players so remove() can clean them up.
+	mgr.mu.Lock()
+	mgr.byUser[p1] = sess
+	mgr.byUser[p2] = sess
+	mgr.mu.Unlock()
+
+	sess.endMatch(context.Background())
+
+	// No gold or trophies must be awarded when EndMatch failed.
+	for _, uid := range []uuid.UUID{p1, p2} {
+		p := res.profiles[uid]
+		if p.Gold != 0 {
+			t.Errorf("%s gold = %d, want 0 (awards aborted on DB error)", uid, p.Gold)
+		}
+		if p.Trophies != 100 {
+			t.Errorf("%s trophies = %d, want 100 (unchanged on DB error)", uid, p.Trophies)
+		}
+	}
+
+	// No match.ended must be sent.
+	for _, uid := range []uuid.UUID{p1, p2} {
+		if len(hub.msgsFor(uid)) != 0 {
+			t.Errorf("%s received a WS message despite DB failure", uid)
+		}
+	}
+
+	// Players must still be deregistered — the session must always clean up.
+	mgr.mu.RLock()
+	_, stillP1 := mgr.byUser[p1]
+	_, stillP2 := mgr.byUser[p2]
+	mgr.mu.RUnlock()
+	if stillP1 || stillP2 {
+		t.Error("players still registered after failed endMatch")
 	}
 }
 

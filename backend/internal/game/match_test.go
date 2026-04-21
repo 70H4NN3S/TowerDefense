@@ -14,8 +14,9 @@ import (
 // ── fakeMatchStore ────────────────────────────────────────────────────────────
 
 type fakeMatchStore struct {
-	mu      sync.Mutex
-	matches map[uuid.UUID]Match
+	mu          sync.Mutex
+	matches     map[uuid.UUID]Match
+	endMatchErr error // if non-nil, EndMatch returns this error
 }
 
 func newFakeMatchStore() *fakeMatchStore {
@@ -42,6 +43,9 @@ func (f *fakeMatchStore) GetMatch(_ context.Context, id uuid.UUID) (Match, error
 func (f *fakeMatchStore) EndMatch(_ context.Context, id uuid.UUID, winner *uuid.UUID, endedAt time.Time) (Match, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if f.endMatchErr != nil {
+		return Match{}, f.endMatchErr
+	}
 	m, ok := f.matches[id]
 	if !ok {
 		return Match{}, ErrMatchNotFound

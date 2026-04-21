@@ -168,12 +168,18 @@ func (s *Session) sendSnapshot() {
 		return
 	}
 	s.mgr.hub.Send(s.p1.userID, msg)
-	s.mgr.hub.Send(s.p2.userID, msg)
+	if s.p2.userID != "" {
+		s.mgr.hub.Send(s.p2.userID, msg)
+	}
 }
 
 // endMatch finalises the match: persists the result, awards resources to both
 // players, pushes match.ended, and removes the session from the manager.
+// If the EndMatch DB write fails the awards are aborted — players are still
+// deregistered so the session is always cleaned up.
 func (s *Session) endMatch(ctx context.Context) {
+	defer s.mgr.remove(s.p1.userID, s.p2.userID)
+
 	victory := s.isVictory()
 
 	var winnerID *uuid.UUID
@@ -190,12 +196,21 @@ func (s *Session) endMatch(ctx context.Context) {
 	endedAt := s.mgr.now()
 	match, err := s.mgr.store.EndMatch(ctx, s.match.ID, winnerID, endedAt)
 	if err != nil {
-		slog.Error("session: end match", "err", err, "match_id", s.match.ID)
-	} else {
-		s.match = match
+		// The match row could not be closed. Skip all awards to avoid crediting
+		// resources for a match that was never officially ended in the DB.
+		slog.Error("session: end match - aborting awards", "err", err, "match_id", s.match.ID)
+		return
+	}
+	s.match = match
+
+	// activePlayers skips the p2 placeholder when it holds the zero UUID
+	// (which only happens if SessionManager.Start was called with a nil PlayerTwo).
+	activePlayers := []sessionPlayer{s.p1}
+	if s.p2.userID != "" {
+		activePlayers = append(activePlayers, s.p2)
 	}
 
-	for _, p := range []sessionPlayer{s.p1, s.p2} {
+	for _, p := range activePlayers {
 		if goldAwarded > 0 {
 			if _, err := s.mgr.resources.AddGold(ctx, p.userID, goldAwarded); err != nil {
 				slog.Error("session: award gold", "err", err, "user_id", p.userID)
@@ -220,8 +235,9 @@ func (s *Session) endMatch(ctx context.Context) {
 	if err != nil {
 		slog.Error("session: marshal match.ended", "err", err, "match_id", s.match.ID)
 	} else {
-		s.mgr.hub.Send(s.p1.userID, msg)
-		s.mgr.hub.Send(s.p2.userID, msg)
+		for _, p := range activePlayers {
+			s.mgr.hub.Send(p.userID, msg)
+		}
 	}
 
 	slog.Info("session: match ended",
@@ -230,8 +246,6 @@ func (s *Session) endMatch(ctx context.Context) {
 		"gold_awarded", goldAwarded,
 		"trophy_delta", trophyDelta,
 	)
-
-	s.mgr.remove(s.p1.userID, s.p2.userID)
 }
 
 // ── SessionManager ────────────────────────────────────────────────────────────
