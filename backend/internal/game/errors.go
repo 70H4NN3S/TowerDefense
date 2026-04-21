@@ -19,4 +19,18 @@ var (
 	// ErrInsufficientEnergy is returned when a spend would make energy
 	// negative.
 	ErrInsufficientEnergy = errors.New("insufficient energy")
+
+	// ErrTemplateNotFound is returned when no tower_templates row matches.
+	ErrTemplateNotFound = errors.New("tower template not found")
+
+	// ErrAlreadyOwned is returned when the player tries to buy a tower they
+	// already own.
+	ErrAlreadyOwned = errors.New("tower already owned")
+
+	// ErrNotOwned is returned when an action targets a tower the player does
+	// not own.
+	ErrNotOwned = errors.New("tower not owned")
+
+	// ErrMaxLevel is returned when the player tries to upgrade past level 10.
+	ErrMaxLevel = errors.New("tower is already at max level")
 )
