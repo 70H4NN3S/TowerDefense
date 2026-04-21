@@ -23,4 +23,8 @@ func registerRoutes(mux *http.ServeMux, pool *pgxpool.Pool, jwtSecret []byte) {
 
 	profileSvc := game.NewResourceService(pool)
 	handlers.NewProfileHandler(profileSvc, jwtSecret).Register(mux)
+
+	towerSvc := game.NewTowerService(pool, profileSvc)
+	handlers.NewShopHandler(towerSvc, jwtSecret).Register(mux)
+	handlers.NewTowerHandler(towerSvc, jwtSecret).Register(mux)
 }

@@ -78,6 +78,14 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 		writeErr(w, http.StatusConflict, reqID, "insufficient_diamonds", "Not enough diamonds.")
 	case errors.Is(err, game.ErrInsufficientEnergy):
 		writeErr(w, http.StatusConflict, reqID, "insufficient_energy", "Not enough energy.")
+	case errors.Is(err, game.ErrTemplateNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "tower_not_found", "Tower template not found.")
+	case errors.Is(err, game.ErrAlreadyOwned):
+		writeErr(w, http.StatusConflict, reqID, "already_owned", "You already own this tower.")
+	case errors.Is(err, game.ErrNotOwned):
+		writeErr(w, http.StatusConflict, reqID, "not_owned", "You do not own this tower.")
+	case errors.Is(err, game.ErrMaxLevel):
+		writeErr(w, http.StatusConflict, reqID, "max_level", "Tower is already at max level.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")
