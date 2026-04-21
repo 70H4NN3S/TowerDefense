@@ -139,22 +139,22 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 5 — Single-player match logic
 
 ### Milestone 5.1: Game simulation primitives
-- [ ] `internal/game/sim/` — pure functions with no I/O:
+- [x] `internal/game/sim/` — pure functions with no I/O:
   - `Map` — waypoints, gate position, tower-placement tiles.
   - `Monster` — hp, speed, reward, path progress.
   - `Tower` — owner, template level, cooldown.
   - `Wave` — spawn schedule.
-- [ ] Deterministic tick function `Step(state, input, dt) State`. Property-based tests on conservation rules (hp never negative, gold never decreases without a reason, etc.).
+- [x] Deterministic tick function `Step(state, input, dt) State`. Property-based tests on conservation rules (hp never negative, gold never decreases without a reason, etc.).
 
 ### Milestone 5.2: Match lifecycle
-- [ ] Migration `0005_matches.up.sql`:
+- [x] Migration `0005_matches.up.sql`:
   - `matches(id, player_one, player_two NULL, mode, started_at, ended_at, winner, seed, final_state jsonb)`.
-- [ ] `internal/game/match.go`:
+- [x] `internal/game/match.go`:
   - `StartSinglePlayer(userID, mapID)` — seeds RNG, persists match row.
   - `SubmitResult(matchID, summary)` — awards gold, trophies, diamonds.
-- [ ] `POST /v1/matches` to start, `POST /v1/matches/{id}/result` to submit.
-- [ ] Server-side replay validation stub (checks final state is plausible given the seed).
-- [ ] Tests covering both replay acceptance and rejection.
+- [x] `POST /v1/matches` to start, `POST /v1/matches/{id}/result` to submit.
+- [x] Server-side replay validation stub (checks final state is plausible given the seed).
+- [x] Tests covering both replay acceptance and rejection.
 
 ---
 
