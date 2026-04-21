@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -69,14 +70,24 @@ type MatchResourcer interface {
 	AddTrophies(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error)
 }
 
+// ── EventRecorder ─────────────────────────────────────────────────────────────
+
+// EventRecorder is an optional hook called after a match result is accepted.
+// Implementations record match outcomes as event progress.
+// Errors from RecordMatchResult are non-fatal and must not block the caller.
+type EventRecorder interface {
+	RecordMatchResult(ctx context.Context, userID uuid.UUID, monstersKilled, wavesCleared int, victory bool) error
+}
+
 // ── MatchService ──────────────────────────────────────────────────────────────
 
 // MatchService implements single-player match lifecycle: starting a match and
 // submitting its result.
 type MatchService struct {
-	store     MatchStore
+	store    MatchStore
 	resources MatchResourcer
-	now       func() time.Time
+	recorder EventRecorder // optional; nil = no event progress tracking
+	now      func() time.Time
 }
 
 // NewMatchService constructs a MatchService backed by pool and resources.
@@ -92,6 +103,13 @@ func NewMatchService(pool *pgxpool.Pool, resources MatchResourcer) *MatchService
 // dependencies. Intended for tests.
 func NewMatchServiceWithStore(store MatchStore, resources MatchResourcer, now func() time.Time) *MatchService {
 	return &MatchService{store: store, resources: resources, now: now}
+}
+
+// SetEventRecorder registers an optional EventRecorder that is called after
+// each successful match result submission. Call this once during server setup;
+// it is not safe to call concurrently with SubmitResult.
+func (s *MatchService) SetEventRecorder(r EventRecorder) {
+	s.recorder = r
 }
 
 // trophyRewardVictory is the trophy gain for winning a single-player match.
@@ -176,7 +194,15 @@ func (s *MatchService) SubmitResult(ctx context.Context, userID, matchID uuid.UU
 		return MatchResult{}, fmt.Errorf("submit result: %w", err)
 	}
 
-	return MatchResult{Match: m, GoldAwarded: goldAwarded, TrophyDelta: trophyDelta}, nil
+	result := MatchResult{Match: m, GoldAwarded: goldAwarded, TrophyDelta: trophyDelta}
+
+	if s.recorder != nil {
+		if err := s.recorder.RecordMatchResult(ctx, userID, summary.MonstersKilled, summary.WavesCleared, summary.Victory); err != nil {
+			slog.WarnContext(ctx, "event recorder failed", "err", err, "user_id", userID)
+		}
+	}
+
+	return result, nil
 }
 
 // validateSummary checks that the submitted MatchSummary is plausible for the
