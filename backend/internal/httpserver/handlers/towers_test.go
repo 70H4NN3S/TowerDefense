@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // ── fakeTowerService ──────────────────────────────────────────────────────────

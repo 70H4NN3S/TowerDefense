@@ -3,12 +3,12 @@ package httpserver
 import (
 	"net/http"
 
-	"github.com/johannesniedens/towerdefense/internal/httpserver/respond"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/respond"
 )
 
 // buildVersion is overridden at link time via
 //
-//	-ldflags "-X github.com/johannesniedens/towerdefense/internal/httpserver.buildVersion=<sha>"
+//	-ldflags "-X github.com/70H4NN3S/TowerDefense/internal/httpserver.buildVersion=<sha>"
 //
 // Falls back to "dev" when running locally without flags.
 var buildVersion = "dev"

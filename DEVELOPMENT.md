@@ -167,30 +167,30 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 - [x] Tests using `httptest.NewServer` and a WS client helper.
 
 ### Milestone 6.2: Message protocol
-- [ ] `internal/ws/protocol.go` — tagged JSON messages: `{"type": "...", "payload": {...}}`.
-- [ ] Versioned via a top-level `v` field.
-- [ ] Round-trip tests for every message type.
+- [x] `internal/ws/protocol.go` — tagged JSON messages: `{"type": "...", "payload": {...}}`.
+- [x] Versioned via a top-level `v` field.
+- [x] Round-trip tests for every message type.
 
 ---
 
 ## Phase 7 — Multiplayer matches
 
 ### Milestone 7.1: Matchmaking
-- [ ] `internal/game/matchmaker.go` — simple trophy-bucket queue; matches on arrival order within a bucket.
-- [ ] `POST /v1/matchmaking/join`, `POST /v1/matchmaking/leave`.
-- [ ] Push match-found events over WS.
-- [ ] Tests for bucket assignment and fairness.
+- [x] `internal/game/matchmaker.go` — simple trophy-bucket queue; matches on arrival order within a bucket.
+- [x] `POST /v1/matchmaking/join`, `POST /v1/matchmaking/leave`.
+- [x] Push match-found events over WS.
+- [x] Tests for bucket assignment and fairness.
 
 ### Milestone 7.2: Authoritative match loop
-- [ ] `internal/game/session.go` — one goroutine per active multiplayer match, running the simulation at a fixed tick rate.
-- [ ] Input is validated (player can only act on their side; resource checks).
-- [ ] Snapshots sent to both clients every N ticks.
-- [ ] Client inputs delivered over WS with sequence numbers; duplicates/late inputs are dropped.
-- [ ] Tests for desync detection and input replay.
+- [x] `internal/game/session.go` — one goroutine per active multiplayer match, running the simulation at a fixed tick rate.
+- [x] Input is validated (player can only act on their side; resource checks).
+- [x] Snapshots sent to both clients every N ticks.
+- [x] Client inputs delivered over WS with sequence numbers; duplicates/late inputs are dropped.
+- [x] Tests for desync detection and input replay.
 
 ### Milestone 7.3: Match completion
-- [ ] Persist final state; award trophies based on ELO-lite delta; notify both clients.
-- [ ] Tests.
+- [x] Persist final state; award trophies based on ELO-lite delta; notify both clients.
+- [x] Tests.
 
 ---
 

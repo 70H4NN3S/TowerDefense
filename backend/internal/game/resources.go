@@ -10,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // Energy regeneration constants. One energy point is restored every

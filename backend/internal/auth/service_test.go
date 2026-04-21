@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/models"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/models"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // fakeStore is an in-memory implementation of userStoreIface for unit tests.

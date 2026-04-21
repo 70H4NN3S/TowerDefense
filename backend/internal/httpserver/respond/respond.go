@@ -9,10 +9,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/models"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/models"
 )
 
 // ErrorEnvelope is the standard API error response shape described in

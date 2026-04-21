@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/config"
-	"github.com/johannesniedens/towerdefense/internal/httpserver"
+	"github.com/70H4NN3S/TowerDefense/internal/config"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver"
 )
 
 func newTestServer(t *testing.T) *httptest.Server {

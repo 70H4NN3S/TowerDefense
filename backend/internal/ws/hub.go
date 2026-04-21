@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // hubOp is the internal operation type processed by Hub.Run.

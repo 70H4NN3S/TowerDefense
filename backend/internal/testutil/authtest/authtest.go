@@ -6,8 +6,8 @@ package authtest
 import (
 	"context"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // FakeStore is an in-memory implementation of auth.Store.

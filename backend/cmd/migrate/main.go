@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/johannesniedens/towerdefense/internal/config"
-	"github.com/johannesniedens/towerdefense/internal/db"
+	"github.com/70H4NN3S/TowerDefense/internal/config"
+	"github.com/70H4NN3S/TowerDefense/internal/db"
 )
 
 func main() {

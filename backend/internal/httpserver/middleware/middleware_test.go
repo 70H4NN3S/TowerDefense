@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
 )
 
 // echoHandler returns a handler that writes the given status code.

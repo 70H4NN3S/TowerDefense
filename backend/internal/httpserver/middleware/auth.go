@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // writeAuthErr writes a minimal JSON error envelope with the correct

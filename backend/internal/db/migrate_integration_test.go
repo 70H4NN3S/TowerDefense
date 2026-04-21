@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/db"
+	"github.com/70H4NN3S/TowerDefense/internal/db"
 )
 
 // TestMigrateUpDown_Integration runs the full migration cycle against a real

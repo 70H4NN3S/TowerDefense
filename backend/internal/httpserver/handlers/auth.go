@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/respond"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/respond"
 )
 
 // AuthHandler wires auth-related routes onto a ServeMux.

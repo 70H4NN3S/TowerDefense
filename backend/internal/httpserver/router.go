@@ -7,11 +7,11 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/handlers"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/ws"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/handlers"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/ws"
 )
 
 // registerRoutes wires all application routes onto mux.

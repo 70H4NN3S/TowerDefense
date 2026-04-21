@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // makeTestClient builds a minimal Client suitable for hub tests (no real conn).

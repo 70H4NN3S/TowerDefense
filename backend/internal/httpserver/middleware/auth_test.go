@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 var authTestSecret = []byte("auth-test-secret-32-bytes-here!!")

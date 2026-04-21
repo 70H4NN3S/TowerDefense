@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/testutil/authtest"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/testutil/authtest"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // ── fakeProfileService ────────────────────────────────────────────────────────

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/models"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/models"
 )
 
 func TestJSON(t *testing.T) {

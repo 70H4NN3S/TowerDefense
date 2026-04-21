@@ -10,8 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/johannesniedens/towerdefense/internal/config"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/config"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
 )
 
 // New constructs and returns a configured *http.Server.

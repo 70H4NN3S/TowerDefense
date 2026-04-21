@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/config"
-	"github.com/johannesniedens/towerdefense/internal/db"
-	"github.com/johannesniedens/towerdefense/internal/httpserver"
-	"github.com/johannesniedens/towerdefense/internal/logging"
+	"github.com/70H4NN3S/TowerDefense/internal/config"
+	"github.com/70H4NN3S/TowerDefense/internal/db"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver"
+	"github.com/70H4NN3S/TowerDefense/internal/logging"
 )
 
 func main() {

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
 )
 
 func TestAllow_UnderLimit(t *testing.T) {

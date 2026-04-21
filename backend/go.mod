@@ -1,4 +1,4 @@
-module github.com/johannesniedens/towerdefense
+module github.com/70H4NN3S/TowerDefense
 
 go 1.26
 

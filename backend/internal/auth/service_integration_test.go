@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/johannesniedens/towerdefense/internal/auth"
-	"github.com/johannesniedens/towerdefense/internal/db"
+	"github.com/70H4NN3S/TowerDefense/internal/auth"
+	"github.com/70H4NN3S/TowerDefense/internal/db"
 )
 
 // newIntegrationService returns a real *auth.Service backed by a live PostgreSQL

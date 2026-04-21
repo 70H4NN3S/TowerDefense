@@ -7,11 +7,11 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/respond"
-	"github.com/johannesniedens/towerdefense/internal/models"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/respond"
+	"github.com/70H4NN3S/TowerDefense/internal/models"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 const (

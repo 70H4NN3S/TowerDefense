@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/game"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/game"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 // ── fakeMatchSvc ──────────────────────────────────────────────────────────────

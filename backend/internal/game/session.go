@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/game/sim"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
-	"github.com/johannesniedens/towerdefense/internal/ws"
+	"github.com/70H4NN3S/TowerDefense/internal/game/sim"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/ws"
 )
 
 const (

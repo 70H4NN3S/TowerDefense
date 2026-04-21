@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/johannesniedens/towerdefense/internal/config"
-	"github.com/johannesniedens/towerdefense/internal/httpserver"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/handlers"
-	"github.com/johannesniedens/towerdefense/internal/httpserver/middleware"
-	"github.com/johannesniedens/towerdefense/internal/testutil/authtest"
+	"github.com/70H4NN3S/TowerDefense/internal/config"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/handlers"
+	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
+	"github.com/70H4NN3S/TowerDefense/internal/testutil/authtest"
 )
 
 // newAuthTestServer builds a full httptest.Server with the auth handler wired in.

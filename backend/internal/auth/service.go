@@ -10,8 +10,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/johannesniedens/towerdefense/internal/models"
-	"github.com/johannesniedens/towerdefense/internal/uuid"
+	"github.com/70H4NN3S/TowerDefense/internal/models"
+	"github.com/70H4NN3S/TowerDefense/internal/uuid"
 )
 
 const (
