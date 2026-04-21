@@ -9,8 +9,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/70H4NN3S/TowerDefense/internal/alliance"
 	"github.com/70H4NN3S/TowerDefense/internal/auth"
 	"github.com/70H4NN3S/TowerDefense/internal/chat"
+	"github.com/70H4NN3S/TowerDefense/internal/events"
 	"github.com/70H4NN3S/TowerDefense/internal/game"
 	"github.com/70H4NN3S/TowerDefense/internal/httpserver/middleware"
 	"github.com/70H4NN3S/TowerDefense/internal/models"
@@ -108,6 +110,44 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 		writeErr(w, http.StatusUnprocessableEntity, reqID, "body_empty", "Message body must not be empty.")
 	case errors.Is(err, chat.ErrBodyTooLong):
 		writeErr(w, http.StatusUnprocessableEntity, reqID, "body_too_long", "Message body exceeds 500 characters.")
+	// Alliance errors
+	case errors.Is(err, alliance.ErrNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "alliance_not_found", "Alliance not found.")
+	case errors.Is(err, alliance.ErrNameTaken):
+		writeErr(w, http.StatusConflict, reqID, "alliance_name_taken", "This alliance name is already taken.")
+	case errors.Is(err, alliance.ErrTagTaken):
+		writeErr(w, http.StatusConflict, reqID, "alliance_tag_taken", "This alliance tag is already taken.")
+	case errors.Is(err, alliance.ErrAlreadyInAlliance):
+		writeErr(w, http.StatusConflict, reqID, "already_in_alliance", "You are already a member of an alliance.")
+	case errors.Is(err, alliance.ErrNotInAlliance):
+		writeErr(w, http.StatusNotFound, reqID, "not_in_alliance", "You are not a member of any alliance.")
+	case errors.Is(err, alliance.ErrNotMember):
+		writeErr(w, http.StatusForbidden, reqID, "not_alliance_member", "You are not a member of this alliance.")
+	case errors.Is(err, alliance.ErrPermissionDenied):
+		writeErr(w, http.StatusForbidden, reqID, "alliance_permission_denied", "You do not have permission to perform this action.")
+	case errors.Is(err, alliance.ErrLeaderMustTransfer):
+		writeErr(w, http.StatusConflict, reqID, "leader_must_transfer", "Transfer leadership or disband the alliance before leaving.")
+	case errors.Is(err, alliance.ErrInviteNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "invite_not_found", "Invite not found.")
+	case errors.Is(err, alliance.ErrInviteNotPending):
+		writeErr(w, http.StatusConflict, reqID, "invite_not_pending", "This invite is no longer pending.")
+	case errors.Is(err, alliance.ErrAlreadyInvited):
+		writeErr(w, http.StatusConflict, reqID, "already_invited", "This user already has a pending invite to your alliance.")
+	case errors.Is(err, alliance.ErrCannotTargetSelf):
+		writeErr(w, http.StatusUnprocessableEntity, reqID, "cannot_target_self", "You cannot target yourself with this action.")
+	case errors.Is(err, alliance.ErrCannotKickLeader):
+		writeErr(w, http.StatusForbidden, reqID, "cannot_kick_leader", "The alliance leader cannot be kicked.")
+	// Event errors
+	case errors.Is(err, events.ErrEventNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "event_not_found", "Event not found.")
+	case errors.Is(err, events.ErrEventNotActive):
+		writeErr(w, http.StatusConflict, reqID, "event_not_active", "This event is not currently active.")
+	case errors.Is(err, events.ErrTierInvalid):
+		writeErr(w, http.StatusBadRequest, reqID, "tier_invalid", "Tier index is out of range.")
+	case errors.Is(err, events.ErrTierNotReached):
+		writeErr(w, http.StatusConflict, reqID, "tier_not_reached", "You have not reached this reward tier yet.")
+	case errors.Is(err, events.ErrTierAlreadyClaimed):
+		writeErr(w, http.StatusConflict, reqID, "tier_already_claimed", "You have already claimed this reward tier.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")
