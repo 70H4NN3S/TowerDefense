@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -240,10 +241,15 @@ func (s *Service) Disband(ctx context.Context, requesterID, allianceID uuid.UUID
 	}
 
 	// Delete the associated chat channel if it still exists.
+	// Non-fatal: the alliance row is already removed. Log so orphaned channels
+	// can be found and cleaned up if the error recurs.
 	if a.ChannelID != nil {
 		if err := s.chatSvc.DeleteChannel(ctx, *a.ChannelID); err != nil {
-			// Log-worthy but non-fatal: the alliance is already gone.
-			_ = err
+			slog.Warn("alliance: disband could not delete chat channel",
+				"err", err,
+				"alliance_id", allianceID,
+				"channel_id", a.ChannelID,
+			)
 		}
 	}
 
