@@ -94,19 +94,19 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 3 — Player profile and resources
 
 ### Milestone 3.1: Schema
-- [ ] Migration `0003_profiles.up.sql`:
+- [x] Migration `0003_profiles.up.sql`:
   - `profiles(user_id pk, display_name, avatar_id, trophies int, gold bigint, diamonds bigint, energy int, energy_updated_at timestamp, xp bigint, level int, created_at, updated_at)`.
-- [ ] CHECK constraints on non-negative gold/diamonds/energy/trophies.
+- [x] CHECK constraints on non-negative gold/diamonds/energy/trophies.
 
 ### Milestone 3.2: Resource service
-- [ ] `internal/game/resources.go` — `AddGold`, `SpendGold`, `AddDiamonds`, `SpendDiamonds`. All operations are atomic (`SELECT ... FOR UPDATE` inside a transaction).
-- [ ] Energy regenerates at `1 per N seconds`; computed lazily on read (don't run a scheduler).
-- [ ] Exhaustive tests: race conditions (use `testing/synctest` or goroutine stress), underflow protection, concurrent spending.
+- [x] `internal/game/resources.go` — `AddGold`, `SpendGold`, `AddDiamonds`, `SpendDiamonds`. All operations are atomic (`SELECT ... FOR UPDATE` inside a transaction).
+- [x] Energy regenerates at `1 per N seconds`; computed lazily on read (don't run a scheduler).
+- [x] Exhaustive tests: race conditions (use `testing/synctest` or goroutine stress), underflow protection, concurrent spending.
 
 ### Milestone 3.3: Profile endpoints
-- [ ] `GET /v1/me` — returns profile + computed energy.
-- [ ] `PATCH /v1/me` — updates display name and avatar only.
-- [ ] Tests.
+- [x] `GET /v1/me` — returns profile + computed energy.
+- [x] `PATCH /v1/me` — updates display name and avatar only.
+- [x] Tests.
 
 ---
 
