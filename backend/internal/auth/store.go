@@ -20,13 +20,13 @@ type Querier interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
-// User is the full user record returned from the database.
+// User is the user identity record returned from the database.
+// Game-state fields (trophies, gold, diamonds, energy) live in profiles.
 type User struct {
 	ID           uuid.UUID
 	Email        string
 	Username     string
 	PasswordHash string
-	Trophies     int64
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
@@ -55,12 +55,12 @@ func (s *userStore) CreateUser(ctx context.Context, nu NewUser) (User, error) {
 	const q = `
 		INSERT INTO users (id, email, username, password_hash)
 		VALUES ($1::uuid, $2, $3, $4)
-		RETURNING id::text, email, username, password_hash, trophies, created_at, updated_at`
+		RETURNING id::text, email, username, password_hash, created_at, updated_at`
 
 	var u User
 	var idStr string
 	err := s.pool.QueryRow(ctx, q, id.String(), nu.Email, nu.Username, nu.PasswordHash).Scan(
-		&idStr, &u.Email, &u.Username, &u.PasswordHash, &u.Trophies, &u.CreatedAt, &u.UpdatedAt,
+		&idStr, &u.Email, &u.Username, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err != nil {
 		if isConstraintError(err, "uq_users_email") {
@@ -84,7 +84,7 @@ func (s *userStore) CreateUser(ctx context.Context, nu NewUser) (User, error) {
 // Returns ErrNotFound when no row exists.
 func (s *userStore) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	const q = `
-		SELECT id::text, email, username, password_hash, trophies, created_at, updated_at
+		SELECT id::text, email, username, password_hash, created_at, updated_at
 		FROM   users
 		WHERE  email = $1`
 
@@ -95,7 +95,7 @@ func (s *userStore) GetUserByEmail(ctx context.Context, email string) (User, err
 // Returns ErrNotFound when no row exists.
 func (s *userStore) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	const q = `
-		SELECT id::text, email, username, password_hash, trophies, created_at, updated_at
+		SELECT id::text, email, username, password_hash, created_at, updated_at
 		FROM   users
 		WHERE  id = $1::uuid`
 
@@ -106,7 +106,7 @@ func (s *userStore) GetUserByID(ctx context.Context, id uuid.UUID) (User, error)
 func (s *userStore) scanUser(row pgx.Row) (User, error) {
 	var u User
 	var idStr string
-	err := row.Scan(&idStr, &u.Email, &u.Username, &u.PasswordHash, &u.Trophies, &u.CreatedAt, &u.UpdatedAt)
+	err := row.Scan(&idStr, &u.Email, &u.Username, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return User{}, ErrNotFound
 	}
