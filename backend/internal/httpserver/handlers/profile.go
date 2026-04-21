@@ -24,8 +24,8 @@ const (
 type ProfileService interface {
 	CreateProfile(ctx context.Context, userID uuid.UUID) (game.Profile, error)
 	GetProfile(ctx context.Context, userID uuid.UUID) (game.Profile, error)
-	UpdateDisplayName(ctx context.Context, userID uuid.UUID, name string) (game.Profile, error)
-	UpdateAvatarID(ctx context.Context, userID uuid.UUID, avatarID int) (game.Profile, error)
+	// UpdateProfile applies a partial update; nil pointers leave the field unchanged.
+	UpdateProfile(ctx context.Context, userID uuid.UUID, displayName *string, avatarID *int) (game.Profile, error)
 }
 
 // ProfileHandler wires profile-related routes onto a ServeMux.
@@ -132,28 +132,31 @@ func (h *ProfileHandler) handlePatchMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := h.svc.GetProfile(r.Context(), userID)
+	if req.DisplayName == nil && req.AvatarID == nil {
+		// Nothing to update; return the current profile without a DB write.
+		p, err := h.svc.GetProfile(r.Context(), userID)
+		if err != nil {
+			respond.Error(w, r, err)
+			return
+		}
+		respond.JSON(w, http.StatusOK, profileToResponse(p))
+		return
+	}
+
+	// Trim whitespace before persisting so the stored value is clean.
+	var displayName *string
+	if req.DisplayName != nil {
+		s := strings.TrimSpace(*req.DisplayName)
+		displayName = &s
+	}
+
+	// A single UPDATE with COALESCE makes both fields atomic — no concurrent
+	// reader ever sees display_name updated without avatar_id (or vice-versa).
+	p, err := h.svc.UpdateProfile(r.Context(), userID, displayName, req.AvatarID)
 	if err != nil {
 		respond.Error(w, r, err)
 		return
 	}
-
-	if req.DisplayName != nil {
-		p, err = h.svc.UpdateDisplayName(r.Context(), userID, strings.TrimSpace(*req.DisplayName))
-		if err != nil {
-			respond.Error(w, r, err)
-			return
-		}
-	}
-
-	if req.AvatarID != nil {
-		p, err = h.svc.UpdateAvatarID(r.Context(), userID, *req.AvatarID)
-		if err != nil {
-			respond.Error(w, r, err)
-			return
-		}
-	}
-
 	respond.JSON(w, http.StatusOK, profileToResponse(p))
 }
 

@@ -46,22 +46,17 @@ func (f *fakeProfileService) GetProfile(_ context.Context, userID uuid.UUID) (ga
 	return p, nil
 }
 
-func (f *fakeProfileService) UpdateDisplayName(_ context.Context, userID uuid.UUID, name string) (game.Profile, error) {
+func (f *fakeProfileService) UpdateProfile(_ context.Context, userID uuid.UUID, displayName *string, avatarID *int) (game.Profile, error) {
 	p, ok := f.profiles[userID]
 	if !ok {
 		return game.Profile{}, game.ErrProfileNotFound
 	}
-	p.DisplayName = name
-	f.profiles[userID] = p
-	return p, nil
-}
-
-func (f *fakeProfileService) UpdateAvatarID(_ context.Context, userID uuid.UUID, avatarID int) (game.Profile, error) {
-	p, ok := f.profiles[userID]
-	if !ok {
-		return game.Profile{}, game.ErrProfileNotFound
+	if displayName != nil {
+		p.DisplayName = *displayName
 	}
-	p.AvatarID = avatarID
+	if avatarID != nil {
+		p.AvatarID = *avatarID
+	}
 	f.profiles[userID] = p
 	return p, nil
 }
@@ -241,6 +236,35 @@ func TestPatchMe_UpdateAvatarID(t *testing.T) {
 	resp := decodeResponse[profileResponse](t, w)
 	if resp.AvatarID != 7 {
 		t.Errorf("AvatarID = %d, want 7", resp.AvatarID)
+	}
+}
+
+func TestPatchMe_UpdateBothFields(t *testing.T) {
+	t.Parallel()
+	svc := newFakeProfileService()
+	mux := newProfileMux(svc)
+
+	userID := uuid.New()
+	svc.seed(game.Profile{UserID: userID, DisplayName: "Old", AvatarID: 0, EnergyUpdatedAt: time.Now(), Level: 1})
+	tok := signedToken(t, userID)
+
+	w := doRequest(mux, http.MethodPatch, "/v1/me", tok, `{"display_name":"New","avatar_id":5}`)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+
+	resp := decodeResponse[profileResponse](t, w)
+	if resp.DisplayName != "New" {
+		t.Errorf("DisplayName = %q, want %q", resp.DisplayName, "New")
+	}
+	if resp.AvatarID != 5 {
+		t.Errorf("AvatarID = %d, want 5", resp.AvatarID)
+	}
+	// Verify both are stored — fake UpdateProfile is atomic, so both must persist.
+	stored, _ := svc.GetProfile(context.Background(), userID)
+	if stored.DisplayName != "New" || stored.AvatarID != 5 {
+		t.Errorf("stored profile mismatch: name=%q avatarID=%d", stored.DisplayName, stored.AvatarID)
 	}
 }
 

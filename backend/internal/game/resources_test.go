@@ -52,26 +52,19 @@ func (f *fakeProfileStore) GetProfile(_ context.Context, userID uuid.UUID) (Prof
 	return p, nil
 }
 
-func (f *fakeProfileStore) UpdateDisplayName(_ context.Context, userID uuid.UUID, name string) (Profile, error) {
+func (f *fakeProfileStore) UpdateProfile(_ context.Context, userID uuid.UUID, displayName *string, avatarID *int) (Profile, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	p, ok := f.profiles[userID]
 	if !ok {
 		return Profile{}, ErrProfileNotFound
 	}
-	p.DisplayName = name
-	f.profiles[userID] = p
-	return p, nil
-}
-
-func (f *fakeProfileStore) UpdateAvatarID(_ context.Context, userID uuid.UUID, avatarID int) (Profile, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	p, ok := f.profiles[userID]
-	if !ok {
-		return Profile{}, ErrProfileNotFound
+	if displayName != nil {
+		p.DisplayName = *displayName
 	}
-	p.AvatarID = avatarID
+	if avatarID != nil {
+		p.AvatarID = *avatarID
+	}
 	f.profiles[userID] = p
 	return p, nil
 }
@@ -347,6 +340,60 @@ func TestSpendDiamonds(t *testing.T) {
 				t.Errorf("Diamonds = %d, want %d", p.Diamonds, tt.wantDiamonds)
 			}
 		})
+	}
+}
+
+// ── UpdateProfile ─────────────────────────────────────────────────────────────
+
+func TestUpdateProfile(t *testing.T) {
+	t.Parallel()
+
+	name := func(s string) *string { return &s }
+	avatarID := func(n int) *int { return &n }
+
+	tests := []struct {
+		name        string
+		displayName *string
+		avatarID    *int
+		wantName    string
+		wantAvatar  int
+	}{
+		{"display_name only", name("Hero"), nil, "Hero", 0},
+		{"avatar_id only", nil, avatarID(7), "initial", 7},
+		{"both fields", name("Updated"), avatarID(3), "Updated", 3},
+		{"neither field (no-op)", nil, nil, "initial", 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			store := newFakeStore()
+			id := uuid.New()
+			store.seedProfile(Profile{UserID: id, DisplayName: "initial", AvatarID: 0, Level: 1, EnergyUpdatedAt: time.Now()})
+			svc := newTestService(store, time.Now)
+
+			p, err := svc.UpdateProfile(context.Background(), id, tt.displayName, tt.avatarID)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if p.DisplayName != tt.wantName {
+				t.Errorf("DisplayName = %q, want %q", p.DisplayName, tt.wantName)
+			}
+			if p.AvatarID != tt.wantAvatar {
+				t.Errorf("AvatarID = %d, want %d", p.AvatarID, tt.wantAvatar)
+			}
+		})
+	}
+}
+
+func TestUpdateProfile_UnknownUser(t *testing.T) {
+	t.Parallel()
+	store := newFakeStore()
+	svc := newTestService(store, time.Now)
+	name := "ghost"
+	_, err := svc.UpdateProfile(context.Background(), uuid.New(), &name, nil)
+	if !errors.Is(err, ErrProfileNotFound) {
+		t.Errorf("err = %v, want ErrProfileNotFound", err)
 	}
 }
 

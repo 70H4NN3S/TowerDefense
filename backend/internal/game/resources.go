@@ -54,8 +54,10 @@ func (p *Profile) ComputedEnergy(now time.Time) int {
 type ProfileStore interface {
 	CreateProfile(ctx context.Context, userID uuid.UUID) (Profile, error)
 	GetProfile(ctx context.Context, userID uuid.UUID) (Profile, error)
-	UpdateDisplayName(ctx context.Context, userID uuid.UUID, displayName string) (Profile, error)
-	UpdateAvatarID(ctx context.Context, userID uuid.UUID, avatarID int) (Profile, error)
+	// UpdateProfile applies a partial update to the profile's display fields.
+	// Nil pointers mean "leave unchanged". A single UPDATE statement is used so
+	// both fields are modified atomically when both are provided.
+	UpdateProfile(ctx context.Context, userID uuid.UUID, displayName *string, avatarID *int) (Profile, error)
 	// AddGold credits amount (must be > 0) to the profile's gold balance.
 	AddGold(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error)
 	// SpendGold debits amount (must be > 0) atomically, returning
@@ -108,21 +110,13 @@ func (s *ResourceService) GetProfile(ctx context.Context, userID uuid.UUID) (Pro
 	return p, nil
 }
 
-// UpdateDisplayName sets the player's display name.
-func (s *ResourceService) UpdateDisplayName(ctx context.Context, userID uuid.UUID, name string) (Profile, error) {
-	p, err := s.store.UpdateDisplayName(ctx, userID, name)
+// UpdateProfile applies a partial update to display_name and/or avatar_id.
+// Nil pointers leave the corresponding field unchanged. Both fields are written
+// in a single UPDATE statement so concurrent reads never see a half-updated row.
+func (s *ResourceService) UpdateProfile(ctx context.Context, userID uuid.UUID, displayName *string, avatarID *int) (Profile, error) {
+	p, err := s.store.UpdateProfile(ctx, userID, displayName, avatarID)
 	if err != nil {
-		return Profile{}, fmt.Errorf("update display name: %w", err)
-	}
-	p.Energy = p.ComputedEnergy(s.now())
-	return p, nil
-}
-
-// UpdateAvatarID sets the player's avatar selection.
-func (s *ResourceService) UpdateAvatarID(ctx context.Context, userID uuid.UUID, avatarID int) (Profile, error) {
-	p, err := s.store.UpdateAvatarID(ctx, userID, avatarID)
-	if err != nil {
-		return Profile{}, fmt.Errorf("update avatar id: %w", err)
+		return Profile{}, fmt.Errorf("update profile: %w", err)
 	}
 	p.Energy = p.ComputedEnergy(s.now())
 	return p, nil
@@ -292,30 +286,20 @@ func (s *profileStore) GetProfile(ctx context.Context, userID uuid.UUID) (Profil
 	return p, nil
 }
 
-func (s *profileStore) UpdateDisplayName(ctx context.Context, userID uuid.UUID, displayName string) (Profile, error) {
+func (s *profileStore) UpdateProfile(ctx context.Context, userID uuid.UUID, displayName *string, avatarID *int) (Profile, error) {
+	// COALESCE keeps the existing value when the argument is NULL, so callers
+	// can update either field or both with a single round-trip to the database.
 	const q = `
 		UPDATE profiles
-		SET    display_name = $2, updated_at = now()
+		SET    display_name = COALESCE($2, display_name),
+		       avatar_id    = COALESCE($3, avatar_id),
+		       updated_at   = now()
 		WHERE  user_id = $1::uuid
 		RETURNING` + profileColumns
 
-	p, err := scanProfile(s.pool.QueryRow(ctx, q, userID.String(), displayName))
+	p, err := scanProfile(s.pool.QueryRow(ctx, q, userID.String(), displayName, avatarID))
 	if err != nil {
-		return Profile{}, fmt.Errorf("update display name: %w", err)
-	}
-	return p, nil
-}
-
-func (s *profileStore) UpdateAvatarID(ctx context.Context, userID uuid.UUID, avatarID int) (Profile, error) {
-	const q = `
-		UPDATE profiles
-		SET    avatar_id = $2, updated_at = now()
-		WHERE  user_id = $1::uuid
-		RETURNING` + profileColumns
-
-	p, err := scanProfile(s.pool.QueryRow(ctx, q, userID.String(), avatarID))
-	if err != nil {
-		return Profile{}, fmt.Errorf("update avatar id: %w", err)
+		return Profile{}, fmt.Errorf("update profile: %w", err)
 	}
 	return p, nil
 }
