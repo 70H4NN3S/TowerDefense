@@ -38,11 +38,29 @@ func (f *fakeStore) GetChannel(_ context.Context, id uuid.UUID) (Channel, error)
 	return ch, nil
 }
 
+func (f *fakeStore) InsertChannel(_ context.Context, ch Channel) (Channel, error) {
+	f.channels[ch.ID] = ch
+	return ch, nil
+}
+
+func (f *fakeStore) DeleteChannel(_ context.Context, channelID uuid.UUID) error {
+	delete(f.channels, channelID)
+	delete(f.memberships, channelID)
+	return nil
+}
+
 func (f *fakeStore) EnsureMembership(_ context.Context, channelID, userID uuid.UUID) error {
 	if _, ok := f.memberships[channelID]; !ok {
 		f.memberships[channelID] = make(map[uuid.UUID]bool)
 	}
 	f.memberships[channelID][userID] = true
+	return nil
+}
+
+func (f *fakeStore) DeleteMembership(_ context.Context, channelID, userID uuid.UUID) error {
+	if m, ok := f.memberships[channelID]; ok {
+		delete(m, userID)
+	}
 	return nil
 }
 

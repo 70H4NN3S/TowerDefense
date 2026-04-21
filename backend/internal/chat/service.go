@@ -48,8 +48,14 @@ type Message struct {
 type Store interface {
 	// GetChannel returns the channel with the given ID.
 	GetChannel(ctx context.Context, id uuid.UUID) (Channel, error)
+	// InsertChannel persists a new channel row and returns it.
+	InsertChannel(ctx context.Context, ch Channel) (Channel, error)
+	// DeleteChannel removes the channel and cascades to memberships and messages.
+	DeleteChannel(ctx context.Context, channelID uuid.UUID) error
 	// EnsureMembership upserts (channel_id, user_id) into chat_memberships.
 	EnsureMembership(ctx context.Context, channelID, userID uuid.UUID) error
+	// DeleteMembership removes userID from channelID.
+	DeleteMembership(ctx context.Context, channelID, userID uuid.UUID) error
 	// IsMember reports whether userID is a member of channelID.
 	IsMember(ctx context.Context, channelID, userID uuid.UUID) (bool, error)
 	// GetMembers returns all user IDs that are members of channelID.
@@ -95,12 +101,45 @@ func NewServiceWithStore(store Store, hub Hub, now func() time.Time) *Service {
 	return &Service{store: store, hub: hub, now: now}
 }
 
+// CreateChannel inserts a new channel of the given kind and returns it.
+// ownerID is optional (nil for non-user-owned channels).
+func (s *Service) CreateChannel(ctx context.Context, kind string, ownerID *uuid.UUID) (Channel, error) {
+	ch := Channel{
+		ID:        uuid.New(),
+		Kind:      kind,
+		OwnerID:   ownerID,
+		CreatedAt: s.now(),
+	}
+	ch, err := s.store.InsertChannel(ctx, ch)
+	if err != nil {
+		return Channel{}, fmt.Errorf("create channel: %w", err)
+	}
+	return ch, nil
+}
+
+// DeleteChannel removes channelID and all its memberships and messages.
+func (s *Service) DeleteChannel(ctx context.Context, channelID uuid.UUID) error {
+	if err := s.store.DeleteChannel(ctx, channelID); err != nil {
+		return fmt.Errorf("delete channel: %w", err)
+	}
+	return nil
+}
+
 // EnsureMembership adds userID to channelID if not already a member.
 // For global channels this is always a no-op-or-join; for other kinds callers
 // are expected to verify authorization before calling.
 func (s *Service) EnsureMembership(ctx context.Context, channelID, userID uuid.UUID) error {
 	if err := s.store.EnsureMembership(ctx, channelID, userID); err != nil {
 		return fmt.Errorf("ensure membership: %w", err)
+	}
+	return nil
+}
+
+// RemoveMembership removes userID from channelID. It is a no-op if the user
+// is not a member.
+func (s *Service) RemoveMembership(ctx context.Context, channelID, userID uuid.UUID) error {
+	if err := s.store.DeleteMembership(ctx, channelID, userID); err != nil {
+		return fmt.Errorf("remove membership: %w", err)
 	}
 	return nil
 }
@@ -358,6 +397,53 @@ func (s *pgStore) GetChannel(ctx context.Context, id uuid.UUID) (Channel, error)
 	return ch, nil
 }
 
+// uuidPtrToStr converts a *uuid.UUID to *string for nullable UUID parameters.
+// pgx accepts *string as a nullable UUID column value.
+func uuidPtrToStr(id *uuid.UUID) *string {
+	if id == nil {
+		return nil
+	}
+	s := id.String()
+	return &s
+}
+
+func (s *pgStore) InsertChannel(ctx context.Context, ch Channel) (Channel, error) {
+	const q = `
+		INSERT INTO chat_channels (id, kind, owner_id, created_at)
+		VALUES ($1::uuid, $2, $3, $4)
+		RETURNING id::text, kind, owner_id::text, created_at`
+
+	var idStr string
+	var ownerStr *string
+	err := s.pool.QueryRow(ctx, q,
+		ch.ID.String(), ch.Kind, uuidPtrToStr(ch.OwnerID), ch.CreatedAt,
+	).Scan(&idStr, &ch.Kind, &ownerStr, &ch.CreatedAt)
+	if err != nil {
+		return Channel{}, fmt.Errorf("insert channel: %w", err)
+	}
+	ch.ID, err = uuid.Parse(idStr)
+	if err != nil {
+		return Channel{}, fmt.Errorf("parse channel id: %w", err)
+	}
+	if ownerStr != nil {
+		oid, err := uuid.Parse(*ownerStr)
+		if err != nil {
+			return Channel{}, fmt.Errorf("parse owner id: %w", err)
+		}
+		ch.OwnerID = &oid
+	}
+	return ch, nil
+}
+
+func (s *pgStore) DeleteChannel(ctx context.Context, channelID uuid.UUID) error {
+	const q = `DELETE FROM chat_channels WHERE id = $1::uuid`
+	_, err := s.pool.Exec(ctx, q, channelID.String())
+	if err != nil {
+		return fmt.Errorf("delete channel: %w", err)
+	}
+	return nil
+}
+
 func (s *pgStore) EnsureMembership(ctx context.Context, channelID, userID uuid.UUID) error {
 	const q = `
 		INSERT INTO chat_memberships (channel_id, user_id)
@@ -367,6 +453,18 @@ func (s *pgStore) EnsureMembership(ctx context.Context, channelID, userID uuid.U
 	_, err := s.pool.Exec(ctx, q, channelID.String(), userID.String())
 	if err != nil {
 		return fmt.Errorf("ensure membership: %w", err)
+	}
+	return nil
+}
+
+func (s *pgStore) DeleteMembership(ctx context.Context, channelID, userID uuid.UUID) error {
+	const q = `
+		DELETE FROM chat_memberships
+		WHERE channel_id = $1::uuid AND user_id = $2::uuid`
+
+	_, err := s.pool.Exec(ctx, q, channelID.String(), userID.String())
+	if err != nil {
+		return fmt.Errorf("delete membership: %w", err)
 	}
 	return nil
 }
