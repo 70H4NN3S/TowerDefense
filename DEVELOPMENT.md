@@ -69,25 +69,25 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 - [ ] Migration `0002_users.down.sql` reverses it.
 
 ### Milestone 2.2: Password hashing
-- [ ] `internal/auth/password.go` — `Hash(plain string) (string, error)` and `Verify(hash, plain string) error` using `golang.org/x/crypto/bcrypt`.
-- [ ] Tests including wrong-password, empty input, and max-length cases.
+- [x] `internal/auth/password.go` — `Hash(plain string) (string, error)` and `Verify(hash, plain string) error` using `golang.org/x/crypto/bcrypt`.
+- [x] Tests including wrong-password, empty input, and max-length cases.
 
 ### Milestone 2.3: JWT
-- [ ] `internal/auth/jwt.go` — implement HS256 signing/verification manually using `crypto/hmac`, `crypto/sha256`, `encoding/base64`, `encoding/json`. **No `golang-jwt` dependency.**
-- [ ] Exported `Sign(claims Claims, secret []byte, ttl time.Duration) (string, error)` and `Parse(token string, secret []byte) (Claims, error)`.
-- [ ] Tests: valid token, tampered signature, expired token, malformed token, clock-skew edge cases.
+- [x] `internal/auth/jwt.go` — implement HS256 signing/verification manually using `crypto/hmac`, `crypto/sha256`, `encoding/base64`, `encoding/json`. **No `golang-jwt` dependency.**
+- [x] Exported `Sign(claims Claims, secret []byte, ttl time.Duration) (string, error)` and `Parse(token string, secret []byte) (Claims, error)`.
+- [x] Tests: valid token, tampered signature, expired token, malformed token, clock-skew edge cases.
 
 ### Milestone 2.4: Registration and login endpoints
-- [ ] `POST /v1/auth/register` — validates input, hashes password, inserts row, returns token.
-- [ ] `POST /v1/auth/login` — verifies password, returns token.
-- [ ] `POST /v1/auth/refresh` — issues a new token given a valid (unexpired) one.
-- [ ] Rate limit these endpoints via a per-IP token bucket (stdlib implementation).
-- [ ] Integration tests against a test PostgreSQL instance (see `.claude/rules/testing.md` for fixture patterns).
+- [x] `POST /v1/auth/register` — validates input, hashes password, inserts row, returns token.
+- [x] `POST /v1/auth/login` — verifies password, returns token.
+- [x] `POST /v1/auth/refresh` — issues a new token given a valid (unexpired) one.
+- [x] Rate limit these endpoints via a per-IP token bucket (stdlib implementation).
+- [x] Integration tests against a test PostgreSQL instance (see `.claude/rules/testing.md` for fixture patterns).
 
 ### Milestone 2.5: Auth middleware
-- [ ] `internal/httpserver/middleware/auth.go` — extracts Bearer token, validates, puts `UserID` on the request context.
-- [ ] Helper `UserIDFromContext(ctx) (uuid.UUID, bool)`.
-- [ ] Tests for missing header, malformed token, expired token, happy path.
+- [x] `internal/httpserver/middleware/auth.go` — extracts Bearer token, validates, puts `UserID` on the request context.
+- [x] Helper `UserIDFromContext(ctx) (uuid.UUID, bool)`.
+- [x] Tests for missing header, malformed token, expired token, happy path.
 
 ---
 
