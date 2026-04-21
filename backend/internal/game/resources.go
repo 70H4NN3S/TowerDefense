@@ -66,6 +66,8 @@ type ProfileStore interface {
 	// SpendDiamonds debits amount (must be > 0) atomically, returning
 	// ErrInsufficientDiamonds if the balance would go negative.
 	SpendDiamonds(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error)
+	// AddTrophies credits amount (must be > 0) to the profile's trophy balance.
+	AddTrophies(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error)
 	// FlushEnergy persists a new energy value and resets energy_updated_at.
 	FlushEnergy(ctx context.Context, userID uuid.UUID, energy int, now time.Time) (Profile, error)
 }
@@ -175,6 +177,19 @@ func (s *ResourceService) SpendDiamonds(ctx context.Context, userID uuid.UUID, a
 	p, err := s.store.SpendDiamonds(ctx, userID, amount)
 	if err != nil {
 		return Profile{}, fmt.Errorf("spend diamonds: %w", err)
+	}
+	p.Energy = p.ComputedEnergy(s.now())
+	return p, nil
+}
+
+// AddTrophies credits amount trophies to the player. amount must be positive.
+func (s *ResourceService) AddTrophies(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error) {
+	if amount <= 0 {
+		return Profile{}, fmt.Errorf("add trophies: amount must be positive, got %d", amount)
+	}
+	p, err := s.store.AddTrophies(ctx, userID, amount)
+	if err != nil {
+		return Profile{}, fmt.Errorf("add trophies: %w", err)
 	}
 	p.Energy = p.ComputedEnergy(s.now())
 	return p, nil
@@ -365,6 +380,20 @@ func (s *profileStore) SpendDiamonds(ctx context.Context, userID uuid.UUID, amou
 			return Profile{}, ErrInsufficientDiamonds
 		}
 		return Profile{}, fmt.Errorf("spend diamonds: %w", err)
+	}
+	return p, nil
+}
+
+func (s *profileStore) AddTrophies(ctx context.Context, userID uuid.UUID, amount int64) (Profile, error) {
+	const q = `
+		UPDATE profiles
+		SET    trophies = trophies + $2, updated_at = now()
+		WHERE  user_id = $1::uuid
+		RETURNING` + profileColumns
+
+	p, err := scanProfile(s.pool.QueryRow(ctx, q, userID.String(), amount))
+	if err != nil {
+		return Profile{}, fmt.Errorf("add trophies: %w", err)
 	}
 	return p, nil
 }

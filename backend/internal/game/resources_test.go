@@ -130,6 +130,18 @@ func (f *fakeProfileStore) SpendDiamonds(_ context.Context, userID uuid.UUID, am
 	return p, nil
 }
 
+func (f *fakeProfileStore) AddTrophies(_ context.Context, userID uuid.UUID, amount int64) (Profile, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	p, ok := f.profiles[userID]
+	if !ok {
+		return Profile{}, ErrProfileNotFound
+	}
+	p.Trophies += amount
+	f.profiles[userID] = p
+	return p, nil
+}
+
 func (f *fakeProfileStore) FlushEnergy(_ context.Context, userID uuid.UUID, energy int, now time.Time) (Profile, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

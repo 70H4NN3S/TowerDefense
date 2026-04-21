@@ -33,4 +33,19 @@ var (
 
 	// ErrMaxLevel is returned when the player tries to upgrade past level 10.
 	ErrMaxLevel = errors.New("tower is already at max level")
+
+	// ErrMatchNotFound is returned when no matches row matches the given ID.
+	ErrMatchNotFound = errors.New("match not found")
+
+	// ErrMatchAlreadyEnded is returned when SubmitResult is called on a match
+	// that already has an ended_at timestamp.
+	ErrMatchAlreadyEnded = errors.New("match already ended")
+
+	// ErrMatchNotOwned is returned when the requesting user is not player_one
+	// of the match.
+	ErrMatchNotOwned = errors.New("match not owned by this player")
+
+	// ErrUnknownMap is returned when StartSinglePlayer receives a map ID that
+	// does not exist in the sim registry.
+	ErrUnknownMap = errors.New("unknown map id")
 )
