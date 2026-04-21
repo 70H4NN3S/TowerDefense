@@ -197,19 +197,19 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 8 — Chat
 
 ### Milestone 8.1: Schema
-- [ ] `chat_channels(id, kind, owner_id)` where `kind ∈ {'global','alliance','direct'}`.
-- [ ] `chat_memberships(channel_id, user_id, joined_at)`.
-- [ ] `chat_messages(id, channel_id, user_id, body, created_at)` with an index on `(channel_id, created_at desc)`.
+- [x] `chat_channels(id, kind, owner_id)` where `kind ∈ {'global','alliance','direct'}`.
+- [x] `chat_memberships(channel_id, user_id, joined_at)`.
+- [x] `chat_messages(id, channel_id, user_id, body, created_at)` with an index on `(channel_id, created_at desc)`.
 
 ### Milestone 8.2: Message service
-- [ ] `internal/chat/service.go` — `Send`, `History`, `EnsureMembership`. Enforce max body length, basic profanity filter stub.
-- [ ] Broadcast sent messages to channel members via the WS hub.
+- [x] `internal/chat/service.go` — `Send`, `History`, `EnsureMembership`. Enforce max body length, basic profanity filter stub.
+- [x] Broadcast sent messages to channel members via the WS hub.
 
 ### Milestone 8.3: Chat endpoints and WS messages
-- [ ] `GET /v1/chat/channels/{id}/messages?before=...&limit=...`.
-- [ ] `POST /v1/chat/channels/{id}/messages`.
-- [ ] WS messages: `chat.message`, `chat.typing`.
-- [ ] Tests for rate limiting (per channel per user), pagination, permission checks.
+- [x] `GET /v1/chat/channels/{id}/messages?before=...&limit=...`.
+- [x] `POST /v1/chat/channels/{id}/messages`.
+- [x] WS messages: `chat.message`, `chat.typing`.
+- [x] Tests for rate limiting (per channel per user), pagination, permission checks.
 
 ---
 
