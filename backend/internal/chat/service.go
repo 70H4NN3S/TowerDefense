@@ -284,8 +284,8 @@ func (s *Service) handleTyping(userID uuid.UUID, payload json.RawMessage) {
 
 // chatMessagePayload is the payload of a server-pushed chat.message WS message.
 type chatMessagePayload struct {
-	ChannelID string          `json:"channel_id"`
-	Message   messagePayload  `json:"message"`
+	ChannelID string         `json:"channel_id"`
+	Message   messagePayload `json:"message"`
 }
 
 // messagePayload is the JSON representation of a single chat message.
