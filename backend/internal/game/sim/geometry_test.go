@@ -118,10 +118,10 @@ func TestPosAtProgress(t *testing.T) {
 	waypoints := []Vec2{{0, 0}, {10, 0}, {10, 5}}
 
 	tests := []struct {
-		name     string
-		d        float64
-		wantX    float64
-		wantY    float64
+		name  string
+		d     float64
+		wantX float64
+		wantY float64
 	}{
 		{"start (d=0)", 0, 0, 0},
 		{"midway first segment", 5, 5, 0},

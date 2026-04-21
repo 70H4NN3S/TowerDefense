@@ -20,12 +20,12 @@ type Tile struct {
 // Map describes the static layout of a level: the monster path, the gate, and
 // the set of tiles where the player may build towers.
 type Map struct {
-	ID        string  `json:"id"`
-	Cols      int     `json:"cols"`
-	Rows      int     `json:"rows"`
-	Waypoints []Vec2  `json:"waypoints"` // ordered; monsters travel [0] → [len-1]
-	Gate      Vec2    `json:"gate"`       // world-space centre of the gate
-	Tiles     []Tile  `json:"tiles"`      // valid tower-placement positions
+	ID        string `json:"id"`
+	Cols      int    `json:"cols"`
+	Rows      int    `json:"rows"`
+	Waypoints []Vec2 `json:"waypoints"` // ordered; monsters travel [0] → [len-1]
+	Gate      Vec2   `json:"gate"`      // world-space centre of the gate
+	Tiles     []Tile `json:"tiles"`     // valid tower-placement positions
 }
 
 // Monster is the live state of one enemy unit.
@@ -95,11 +95,11 @@ type State struct {
 	Towers       []Tower       `json:"towers"`
 	Monsters     []Monster     `json:"monsters"`
 	Waves        []Wave        `json:"waves"`
-	WaveIdx      int           `json:"wave_idx"`       // index of the current wave
-	WaveTime     float64       `json:"wave_time"`      // elapsed seconds in current wave
-	SpawnRecords []SpawnRecord `json:"spawn_records"`  // one per group in the current wave
-	Gold         int64         `json:"gold"`           // in-match gold balance
-	GateHP       int64         `json:"gate_hp"`        // 0 = player lost
-	Tick         int64         `json:"tick"`           // increments by 1 each Step call
-	NextID       int64         `json:"next_id"`        // monotonically increasing entity counter
+	WaveIdx      int           `json:"wave_idx"`      // index of the current wave
+	WaveTime     float64       `json:"wave_time"`     // elapsed seconds in current wave
+	SpawnRecords []SpawnRecord `json:"spawn_records"` // one per group in the current wave
+	Gold         int64         `json:"gold"`          // in-match gold balance
+	GateHP       int64         `json:"gate_hp"`       // 0 = player lost
+	Tick         int64         `json:"tick"`          // increments by 1 each Step call
+	NextID       int64         `json:"next_id"`       // monotonically increasing entity counter
 }

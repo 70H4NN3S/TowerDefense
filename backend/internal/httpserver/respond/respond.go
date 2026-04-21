@@ -86,6 +86,15 @@ func Error(w http.ResponseWriter, r *http.Request, err error) {
 		writeErr(w, http.StatusConflict, reqID, "not_owned", "You do not own this tower.")
 	case errors.Is(err, game.ErrMaxLevel):
 		writeErr(w, http.StatusConflict, reqID, "max_level", "Tower is already at max level.")
+	// Match errors
+	case errors.Is(err, game.ErrMatchNotFound):
+		writeErr(w, http.StatusNotFound, reqID, "match_not_found", "Match not found.")
+	case errors.Is(err, game.ErrMatchNotOwned):
+		writeErr(w, http.StatusForbidden, reqID, "match_not_owned", "You are not the owner of this match.")
+	case errors.Is(err, game.ErrMatchAlreadyEnded):
+		writeErr(w, http.StatusConflict, reqID, "match_already_ended", "This match has already ended.")
+	case errors.Is(err, game.ErrUnknownMap):
+		writeErr(w, http.StatusBadRequest, reqID, "unknown_map", "Unknown map ID.")
 	default:
 		slog.ErrorContext(r.Context(), "unhandled error", "err", err, "request_id", reqID)
 		writeErr(w, http.StatusInternalServerError, reqID, "internal", "Something went wrong.")
