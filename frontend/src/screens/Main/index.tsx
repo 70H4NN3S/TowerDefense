@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { useProfile } from '@/hooks/useProfile.ts';
 import { ResourceHud } from '@/components/ResourceHud/index.tsx';
+import { GameScreen } from '@/screens/Game/index.tsx';
 
 function DailyRewardSlot() {
   return (
@@ -17,12 +19,23 @@ function DailyRewardSlot() {
  * Main screen — the game hub.
  * Shows the resource HUD, the player's trophy count, a Play button, and
  * the daily reward slot.
+ *
+ * When the Play button is pressed the GameScreen overlays the whole view.
  */
 export function Main() {
   const { profile } = useProfile();
+  const [isPlaying, setIsPlaying] = useState(false);
 
   if (profile === null) {
     return null;
+  }
+
+  if (isPlaying) {
+    return (
+      <div className="main-game-overlay" style={{ position: 'fixed', inset: 0, zIndex: 100 }}>
+        <GameScreen onExit={() => setIsPlaying(false)} />
+      </div>
+    );
   }
 
   return (
@@ -39,8 +52,11 @@ export function Main() {
         <span className="trophies-label">Trophies</span>
       </div>
 
-      {/* Play button is a stub until Phase 14 wires up the game canvas. */}
-      <button className="main-play-button" aria-label="Play">
+      <button
+        className="main-play-button"
+        aria-label="Play"
+        onClick={() => setIsPlaying(true)}
+      >
         Play
       </button>
 

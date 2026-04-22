@@ -23,10 +23,6 @@ const singleGroupWave: Wave = {
   groups: [{ maxHp: 50, speed: 1, reward: 10, count: 2, interval: 2, delay: 0 }],
 };
 
-function makeState(overrides: Partial<GameState> = {}): GameState {
-  return initialState(testMap, [singleGroupWave], 200, 10, ...[] as never[]);
-}
-
 // Helper that calls initialState with the test fixtures.
 function freshState(): GameState {
   return initialState(testMap, [singleGroupWave], 200, 10);

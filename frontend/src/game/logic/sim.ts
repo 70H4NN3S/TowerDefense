@@ -7,7 +7,6 @@
 import type {
   GameState,
   SimInput,
-  Monster,
   Tower,
   SpawnRecord,
   Wave,
