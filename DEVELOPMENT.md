@@ -282,25 +282,25 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 13 — React UI shell (five sections)
 
 ### Milestone 13.1: Navigation
-- [ ] Bottom tab bar with: **Shop**, **Towers**, **Main**, **Alliance**, **Events**.
-- [ ] Route state persisted across reloads.
-- [ ] Tests for navigation and deep-link restoration.
+- [x] Bottom tab bar with: **Shop**, **Towers**, **Main**, **Alliance**, **Events**.
+- [x] Route state persisted across reloads.
+- [x] Tests for navigation and deep-link restoration.
 
 ### Milestone 13.2: Main screen
-- [ ] Play button, resource HUD (gold, diamonds, energy), trophies badge, daily rewards slot.
+- [x] Play button, resource HUD (gold, diamonds, energy), trophies badge, daily rewards slot.
 
 ### Milestone 13.3: Towers screen
-- [ ] Grid of owned towers; tapping one opens an upgrade modal with stat deltas and a gold-locked Upgrade button.
+- [x] Grid of owned towers; tapping one opens an upgrade modal with stat deltas and a gold-locked Upgrade button.
 
 ### Milestone 13.4: Shop screen
-- [ ] Tower bundles with price in diamonds; owned towers are greyed out.
-- [ ] Confirmation modal before purchase.
+- [x] Tower bundles with price in diamonds; owned towers are greyed out.
+- [x] Confirmation modal before purchase.
 
 ### Milestone 13.5: Alliance screen
-- [ ] If no alliance: Create/Browse/Join. If in one: roster, chat tab, events tab.
+- [x] If no alliance: Create/Browse/Join. If in one: roster, chat tab, events tab.
 
 ### Milestone 13.6: Events screen
-- [ ] Active events with progress bars, reward tiers, countdown timers.
+- [x] Active events with progress bars, reward tiers, countdown timers.
 
 Every component has Vitest tests. See `.claude/rules/testing.md`.
 
