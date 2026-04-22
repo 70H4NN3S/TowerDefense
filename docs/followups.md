@@ -43,3 +43,44 @@ Format: `## <slug>` then bullet points with author, date, and context.
   statement-level control (e.g. DDL + DML in the same file), the runner should
   be extended to split on `;` or use pgx's extended-query protocol. Not needed
   until we have a case that requires it.
+
+## upgrade-modal-stat-deltas
+
+- **Author:** claude, 2026-04-22
+- **Context:** Phase 13 Towers screen — the UpgradeModal shows current stats and
+  gold cost but cannot display next-level stat deltas because `GET /v1/towers`
+  only returns the current level's stats. Fix: extend the `OwnedTower` response
+  to include a `next: TowerStats | null` field populated from the `tower_levels`
+  table (null at max level). The frontend UpgradeModal is already structured to
+  display a "next stats" section once the data is available.
+  Priority: medium — cosmetic; upgrade still works correctly without it.
+
+## alliance-browse
+
+- **Author:** claude, 2026-04-22
+- **Context:** Phase 13 Alliance screen — the "Browse Alliances" button is a
+  disabled stub because there is no `GET /v1/alliances` list endpoint. To
+  implement: add a paginated list endpoint (name/tag/trophy filter) and a
+  `GET /v1/invites` endpoint so players can see pending invites. Then wire up
+  the Browse tab in `src/screens/Alliance/index.tsx`.
+  Priority: medium — needed for organic alliance growth.
+
+## daily-reward
+
+- **Author:** claude, 2026-04-22
+- **Context:** Phase 13 Main screen — the DailyRewardSlot component is a stub
+  ("Come back tomorrow") because there is no daily-reward system in the backend
+  yet. To implement: add a `daily_rewards` table, a claim endpoint, and a streak
+  counter. The frontend component can then show the claimable reward and call the
+  endpoint on tap.
+  Priority: low — nice-to-have for retention; not on the Phase 13 roadmap.
+
+## events-progress-bars
+
+- **Author:** claude, 2026-04-22
+- **Context:** Phase 13 Events screen — progress bars are rendered at 0% because
+  the `GET /v1/events` response does not include per-user progress. Fix: add a
+  `progress` field to the response (joined from `event_progress`) so the frontend
+  can render accurate tier progress. The `event_progress__bar-fill` CSS is already
+  in place; just needs a `width` value from the API.
+  Priority: medium — events feel hollow without visible progress.
