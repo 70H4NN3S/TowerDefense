@@ -14,6 +14,8 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
+  /** Re-fetch the current user's profile and update the auth state. */
+  refreshProfile: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthState | null>(null);

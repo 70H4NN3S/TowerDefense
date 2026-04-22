@@ -73,6 +73,11 @@ export function AuthProvider({ children, store: storeProp }: AuthProviderProps) 
     [store],
   );
 
+  const refreshProfile = useCallback(async () => {
+    const profile = await profileApi.getMe();
+    setUser(profile);
+  }, []);
+
   const logout = useCallback(() => {
     store.clearTokens();
     setAccessToken(null);
@@ -88,6 +93,7 @@ export function AuthProvider({ children, store: storeProp }: AuthProviderProps) 
         login,
         register,
         logout,
+        refreshProfile,
       }}
     >
       {children}
