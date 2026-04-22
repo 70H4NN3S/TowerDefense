@@ -4,6 +4,12 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/v1': 'http://localhost:8080',
+      '/healthz': 'http://localhost:8080',
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

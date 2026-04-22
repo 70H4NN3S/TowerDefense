@@ -1,3 +1,8 @@
+ifneq (,$(wildcard .env))
+	include .env
+	export
+endif
+
 .PHONY: run test lint fmt migrate-up migrate-down build help
 
 BINARY       := bin/server
