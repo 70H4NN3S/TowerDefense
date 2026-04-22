@@ -263,19 +263,19 @@ Read `CLAUDE.md` and everything under `.claude/rules/` before starting work on a
 ## Phase 12 — Frontend scaffolding
 
 ### Milestone 12.1: Project layout
-- [ ] `src/api/`, `src/game/`, `src/screens/`, `src/components/`, `src/state/`, `src/hooks/`, `src/lib/`.
-- [ ] Path aliases in `tsconfig.json`.
-- [ ] Global style reset, CSS variables for the palette, vertical-first layout (`viewport-fit=cover`).
+- [x] `src/api/`, `src/game/`, `src/screens/`, `src/components/`, `src/state/`, `src/hooks/`, `src/lib/`.
+- [x] Path aliases in `tsconfig.json`.
+- [x] Global style reset, CSS variables for the palette, vertical-first layout (`viewport-fit=cover`).
 
 ### Milestone 12.2: API client
-- [ ] `src/api/client.ts` — thin `fetch` wrapper that attaches the JWT, retries idempotent requests, and normalizes errors.
-- [ ] Typed endpoints mirroring backend routes.
-- [ ] Tests with MSW (acceptable test-only dep) or `fetch` mocking via the stdlib `Response`.
+- [x] `src/api/client.ts` — thin `fetch` wrapper that attaches the JWT, retries idempotent requests, and normalizes errors.
+- [x] Typed endpoints mirroring backend routes.
+- [x] Tests with MSW (acceptable test-only dep) or `fetch` mocking via the stdlib `Response`.
 
 ### Milestone 12.3: Auth flow
-- [ ] Login/Register screens.
-- [ ] Token stored via Capacitor `Preferences` when running on-device, `localStorage` in the browser (abstract behind a `Storage` interface).
-- [ ] Tests.
+- [x] Login/Register screens.
+- [x] Token stored via Capacitor `Preferences` when running on-device, `localStorage` in the browser (abstract behind a `Storage` interface).
+- [x] Tests.
 
 ---
 
